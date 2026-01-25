@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SISTEMA – MEMÓRIA DO CAÇADOR</title>
+<style>
+:root{
+ --bg:#05070a;--panel:#0c1117;--cyan:#00e5ff;--red:#ff5252;--green:#4caf50;--yellow:#ffca28;--text:#e6f1ff;
+}
+body{margin:0;font-family:Segoe UI,Arial;background:radial-gradient(circle at top,#0b1a24,var(--bg));color:var(--text);padding:20px}
+h1,h2,h3{color:var(--cyan)}
+.hud{border:2px solid var(--cyan);border-radius:14px;padding:20px;box-shadow:0 0 25px rgba(0,229,255,.25);margin-bottom:20px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{flex:1;min-width:120px;background:var(--panel);padding:12px;border-radius:10px;text-align:center}
+.bar{height:10px;background:#12202c;border-radius:5px;overflow:hidden;margin-top:6px}
+.bar>div{height:100%;background:linear-gradient(90deg,var(--cyan),#00bcd4)}
+input,textarea,select,button{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:none;font-size:1rem}
+button{cursor:pointer;background:var(--cyan);font-weight:bold;color:#000}
+.good{background:var(--green)}.bad{background:var(--red);color:#fff}
+.card{background:var(--panel);border-radius:12px;padding:15px;margin-top:10px;border-left:4px solid var(--cyan);position:relative}
+.due{border-left-color:var(--red)}
+.warn{color:var(--yellow);font-weight:bold}
+.badge{display:inline-block;padding:4px 8px;border-radius:6px;background:#12202c;margin:4px 4px 0 0;font-size:.8rem}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.day{background:#0e1620;border-radius:8px;padding:8px;font-size:.8rem;text-align:center}
+.del{position:absolute;top:15px;right:15px;width:auto;padding:6px 12px;background:var(--red);font-size:.85rem;color:#fff}
+.agenda-item{display:flex;justify-content:space-between;align-items:center;padding:12px;background:#0e1620;border-radius:8px;margin:8px 0;border-left:3px solid var(--cyan)}
+.date-badge{background:var(--cyan);color:#000;padding:6px 12px;border-radius:6px;font-weight:bold;font-size:.85rem;white-space:nowrap}
+.empty{text-align:center;padding:20px;color:#6b7280;font-style:italic}
+</style>
+</head>
+<body>
+<h1>⚔️ SISTEMA – MEMÓRIA DO CAÇADOR</h1>
+
+<div class="hud">
+<h2>Status</h2>
+<div class="stats">
+<div class="stat"><strong>Nível</strong><div id="level">1</div></div>
+<div class="stat"><strong>XP</strong><div id="xp">0/100</div><div class="bar"><div id="xpBar"></div></div></div>
+<div class="stat"><strong>Rank</strong><div id="rank">E</div></div>
+<div class="stat"><strong>Streak</strong><div id="streak">0 dias</div></div>
+</div>
+<div id="alert" class="warn"></div>
+</div>
+
+<div class="hud">
+<h2>📜 Nova Memória</h2>
+<input id="title" placeholder="Conteúdo" />
+<textarea id="content" placeholder="Resumo" rows="3"></textarea>
+<select id="subject">
+<optgroup label="🔬 Ciências da Natureza">
+<option>Biologia</option>
+<option>Química</option>
+<option>Física</option>
+</optgroup>
+<optgroup label="📚 Ciências Humanas">
+<option>História</option>
+<option>Geografia</option>
+<option>Filosofia</option>
+<option>Sociologia</option>
+</optgroup>
+<optgroup label="✍️ Linguagens">
+<option>Português</option>
+<option>Literatura</option>
+<option>Língua Estrangeira</option>
+<option>Artes</option>
+<option>Educação Física</option>
+<option>TIC</option>
+</optgroup>
+<optgroup label="🔢 Matemática">
+<option>Matemática</option>
+</optgroup>
+<optgroup label="📌 Outros">
+<option>Outro</option>
+</optgroup>
+</select>
+<button onclick="addItem()">✨ Registrar</button>
+</div>
+
+<div class="hud"><h2>🧠 Revisões Pendentes</h2><div id="due"></div></div>
+<div class="hud"><h2>📋 Agenda de Revisões</h2><div id="agenda"></div></div>
+<div class="hud"><h2>📆 Calendário da Semana</h2><div id="calendar" class="calendar"></div></div>
+<div class="hud"><h2>📚 Todos os Conteúdos</h2><div id="allItems"></div></div>
+<div class="hud">
+<h2>💾 Backup & Restauração</h2>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<button onclick="exportData()" style="flex:1;background:var(--green)">📥 Exportar Dados</button>
+<button onclick="document.getElementById('importFile').click()" style="flex:1;background:var(--yellow);color:#000">📤 Importar Dados</button>
+<button onclick="resetData()" style="flex:1;background:var(--red);color:#fff">🗑️ Resetar Tudo</button>
+</div>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+<small style="display:block;margin-top:10px;color:#6b7280">💡 Exporte regularmente para não perder seus dados!</small>
+</div>
+<div class="hud"><h2>🏆 Conquistas</h2><div id="achievements"></div></div>
+
+<script>
+const KEY='solo_system_v2';
+let state=JSON.parse(localStorage.getItem(KEY))||{xp:0,level:1,streak:0,lastReview:null,items:[],ach:[]};
+const today=()=>new Date().toDateString();
+const save=()=>localStorage.setItem(KEY,JSON.stringify(state));
+const rank=l=>l<5?'E':l<10?'D':l<20?'C':l<35?'B':l<50?'A':'S';
+
+function addXP(x){state.xp+=x;while(state.xp>=100){state.xp-=100;state.level++;}}
+
+function sm2(item,q){if(!item.reps){item.reps=0;item.ef=2.5;item.int=1}
+if(q<3){item.reps=0;item.int=1}else{item.reps++;if(item.reps==1)item.int=1;else if(item.reps==2)item.int=6;else item.int=Math.round(item.int*item.ef);item.ef=Math.max(1.3,item.ef+(0.1-(5-q)*(0.08+(5-q)*0.02)))}
+item.next=Date.now()+item.int*86400000}
+
+function addItem(){const t=title.value.trim(),c=content.value.trim(),s=subject.value;if(!t||!c)return;
+state.items.push({id:crypto.randomUUID(),t,c,s,next:Date.now()});save();render();title.value=content.value=''}
+
+function review(id,q){const i=state.items.find(x=>x.id==id);if(!i)return;sm2(i,q);addXP(q>=3?20:5);
+if(state.lastReview===today()){}else{state.streak++;state.lastReview=today()}
+checkAch();save();render()}
+
+function deleteItem(id){if(confirm('⚠️ Deseja realmente apagar este conteúdo?')){state.items=state.items.filter(x=>x.id!=id);save();render()}}
+
+function checkAch(){if(state.streak>=7&&!state.ach.includes('7dias'))state.ach.push('7dias')}
+
+function exportData(){const data=JSON.stringify(state,null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`memoria-cacador-${new Date().toISOString().split('T')[0]}.json`;a.click();URL.revokeObjectURL(url);alert('✅ Dados exportados com sucesso!')}
+
+function importData(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(ev){try{const imported=JSON.parse(ev.target.result);if(confirm('⚠️ Isso vai substituir todos os dados atuais. Continuar?')){state=imported;save();render();alert('✅ Dados importados com sucesso!')}}catch(err){alert('❌ Erro ao importar arquivo. Verifique se é um arquivo válido.')}};reader.readAsText(file);e.target.value=''}
+
+function resetData(){if(confirm('⚠️ ATENÇÃO: Isso vai apagar TODOS os seus dados permanentemente!'))if(confirm('🚨 Tem certeza absoluta? Esta ação não pode ser desfeita!')){localStorage.removeItem(KEY);state={xp:0,level:1,streak:0,lastReview:null,items:[],ach:[]};render();alert('✅ Todos os dados foram resetados!')}}
+
+function render(){level.innerText=state.level;xp.innerText=`${state.xp}/100`;xpBar.style.width=state.xp+'%';rankEl=rank(state.level);rank.innerText=rankEl;streak.innerText=state.streak+' dias';
+alert.innerText=state.items.filter(i=>i.next<=Date.now()).length>5?'⚠️ Muitas revisões pendentes!':'';
+
+const d=due,ag=agenda,all=allItems;d.innerHTML=ag.innerHTML=all.innerHTML='';
+
+// Revisões pendentes
+const pending=state.items.filter(i=>i.next<=Date.now());
+if(pending.length===0){d.innerHTML='<div class="empty">Nenhuma revisão pendente no momento! 🎉</div>'}
+else{pending.forEach(i=>d.innerHTML+=`<div class='card due'><button class='del' onclick="deleteItem('${i.id}')">🗑️</button><h3>${i.t}</h3><small>${i.s}</small><p>${i.c}</p><button class='good' onclick="review('${i.id}',5)">✅ Acertei</button> <button class='bad' onclick="review('${i.id}',2)">❌ Errei</button></div>`)}
+
+// Agenda de revisões futuras
+const sorted=[...state.items].filter(i=>i.next>Date.now()).sort((a,b)=>a.next-b.next);
+if(sorted.length===0){ag.innerHTML='<div class="empty">Nenhuma revisão agendada</div>'}
+else{sorted.forEach(i=>{const dt=new Date(i.next);const dias=Math.ceil((i.next-Date.now())/86400000);
+ag.innerHTML+=`<div class='agenda-item'><div><strong>${i.t}</strong><br/><small>${i.s}</small></div><span class='date-badge'>${dt.toLocaleDateString('pt-BR')} (${dias}d)</span></div>`})}
+
+// Calendário
+calendar.innerHTML='';
+for(let i=0;i<7;i++){const day=new Date();day.setDate(day.getDate()+i);const count=state.items.filter(it=>new Date(it.next).toDateString()==day.toDateString()).length;
+calendar.innerHTML+=`<div class='day'><strong>${day.toLocaleDateString('pt-BR',{weekday:'short'})}</strong><br/>${count} revisão${count!=1?'ões':''}${count>0?' 📌':''}</div>`}
+
+// Todos os conteúdos
+if(state.items.length===0){all.innerHTML='<div class="empty">Nenhum conteúdo cadastrado ainda</div>'}
+else{const allSorted=[...state.items].sort((a,b)=>a.next-b.next);
+allSorted.forEach(i=>{const dt=new Date(i.next);const isOverdue=i.next<=Date.now();
+all.innerHTML+=`<div class='card${isOverdue?' due':''}'><button class='del' onclick="deleteItem('${i.id}')">🗑️</button><h3>${i.t}</h3><small>${i.s} — ${isOverdue?'<span class="warn">⏰ REVISAR AGORA</span>':dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</small><p>${i.c}</p></div>`})}
+
+achievements.innerHTML=state.ach.includes('7dias')?'<span class="badge">🔥 7 dias consecutivos</span>':'<div class="empty">Complete revisões para desbloquear conquistas!</div>'}
+
+render();
+</script>
+</body>
+</html>
