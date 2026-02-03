@@ -2,159 +2,1712 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SISTEMA – MEMÓRIA DO CAÇADOR</title>
-<style>
-:root{
- --bg:#05070a;--panel:#0c1117;--cyan:#00e5ff;--red:#ff5252;--green:#4caf50;--yellow:#ffca28;--text:#e6f1ff;
-}
-body{margin:0;font-family:Segoe UI,Arial;background:radial-gradient(circle at top,#0b1a24,var(--bg));color:var(--text);padding:20px}
-h1,h2,h3{color:var(--cyan)}
-.hud{border:2px solid var(--cyan);border-radius:14px;padding:20px;box-shadow:0 0 25px rgba(0,229,255,.25);margin-bottom:20px}
-.stats{display:flex;gap:10px;flex-wrap:wrap}
-.stat{flex:1;min-width:120px;background:var(--panel);padding:12px;border-radius:10px;text-align:center}
-.bar{height:10px;background:#12202c;border-radius:5px;overflow:hidden;margin-top:6px}
-.bar>div{height:100%;background:linear-gradient(90deg,var(--cyan),#00bcd4)}
-input,textarea,select,button{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:none;font-size:1rem}
-button{cursor:pointer;background:var(--cyan);font-weight:bold;color:#000}
-.good{background:var(--green)}.bad{background:var(--red);color:#fff}
-.card{background:var(--panel);border-radius:12px;padding:15px;margin-top:10px;border-left:4px solid var(--cyan);position:relative}
-.due{border-left-color:var(--red)}
-.warn{color:var(--yellow);font-weight:bold}
-.badge{display:inline-block;padding:4px 8px;border-radius:6px;background:#12202c;margin:4px 4px 0 0;font-size:.8rem}
-.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
-.day{background:#0e1620;border-radius:8px;padding:8px;font-size:.8rem;text-align:center}
-.del{position:absolute;top:15px;right:15px;width:auto;padding:6px 12px;background:var(--red);font-size:.85rem;color:#fff}
-.agenda-item{display:flex;justify-content:space-between;align-items:center;padding:12px;background:#0e1620;border-radius:8px;margin:8px 0;border-left:3px solid var(--cyan)}
-.date-badge{background:var(--cyan);color:#000;padding:6px 12px;border-radius:6px;font-weight:bold;font-size:.85rem;white-space:nowrap}
-.empty{text-align:center;padding:20px;color:#6b7280;font-style:italic}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLANKSHEET - Recall Automático</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #FAFAFA;
+            --sidebar-bg: #000000;
+            --card-bg: #FFFFFF;
+            --text: #0A0A0A;
+            --text-light: #9CA3AF;
+            --accent: #FF4444;
+            --border: #E5E7EB;
+            --hover: #F3F4F6;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            padding: 0 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .logo h1 {
+            font-size: 1.75rem;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: -0.02em;
+        }
+
+        .logo p {
+            font-size: 0.75rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
+        }
+
+        .nav-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: var(--accent);
+        }
+
+        .nav-icon {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .add-topic-btn {
+            margin: 2rem 1.5rem 0;
+            padding: 1rem;
+            background: white;
+            color: black;
+            border: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 8px;
+        }
+
+        .add-topic-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 3rem 4rem;
+        }
+
+        .header {
+            margin-bottom: 2rem;
+        }
+
+        .header h2 {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-badges {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        /* SECTIONS */
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid var(--text);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        .section-count {
+            background: var(--accent);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .empty-state {
+            background: white;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 4rem 2rem;
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        .empty-state-text {
+            font-size: 1.125rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* TOPIC CARDS */
+        .topic-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .topic-card:hover {
+            border-color: var(--text);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .topic-card.urgent {
+            border-left: 6px solid var(--accent);
+        }
+
+        .topic-card.ready {
+            border-left: 6px solid #F59E0B;
+        }
+
+        .topic-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .topic-indicator.urgent {
+            background: var(--accent);
+            box-shadow: 0 0 0 4px rgba(255, 68, 68, 0.2);
+        }
+
+        .topic-indicator.ready {
+            background: #F59E0B;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+        }
+
+        .topic-info {
+            flex: 1;
+        }
+
+        .topic-name {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.375rem;
+        }
+
+        .topic-meta {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .topic-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--text);
+            background: var(--text);
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .btn:hover {
+            background: white;
+            color: var(--text);
+            transform: translateY(-2px);
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-accent:hover {
+            background: white;
+            color: var(--accent);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: var(--text);
+            color: white;
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        /* FORMS */
+        .form-container {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 2.5rem;
+            max-width: 800px;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--text);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .slider-container {
+            margin: 1.5rem 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--text);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .slider-value {
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .radio-option:hover {
+            border-color: var(--text);
+        }
+
+        .radio-option input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 16px;
+            padding: 3rem;
+            position: relative;
+            animation: modalSlideIn 0.3s;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--text);
+            color: white;
+            border-color: var(--text);
+            transform: rotate(90deg);
+        }
+
+        .modal-header {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            letter-spacing: -0.02em;
+        }
+
+        /* REVIEW SCREEN */
+        .review-screen {
+            text-align: center;
+        }
+
+        .timer {
+            font-size: 4rem;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            margin: 2rem 0;
+            letter-spacing: -0.02em;
+        }
+
+        .review-instruction {
+            background: var(--hover);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            font-size: 1.125rem;
+            line-height: 1.8;
+        }
+
+        .hints-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: #FEF3C7;
+            border: 2px solid #F59E0B;
+            border-radius: 12px;
+        }
+
+        .hint {
+            display: none;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: white;
+            border-left: 4px solid #F59E0B;
+            border-radius: 6px;
+        }
+
+        .hint.revealed {
+            display: block;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* TIMELINE */
+        .timeline {
+            position: relative;
+            padding-left: 3rem;
+            margin: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -3.5rem;
+            top: 0;
+            width: 14px;
+            height: 14px;
+            background: var(--text);
+            border-radius: 50%;
+        }
+
+        .timeline-content {
+            background: var(--hover);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .timeline-date {
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* ALERTS */
+        .alert {
+            padding: 1.5rem;
+            border: 2px solid;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+        }
+
+        .alert-info {
+            background: #DBEAFE;
+            border-color: #3B82F6;
+            color: #1E40AF;
+        }
+
+        .alert-warning {
+            background: #FEF3C7;
+            border-color: #F59E0B;
+            color: #92400E;
+        }
+
+        .alert-success {
+            background: #D1FAE5;
+            border-color: #059669;
+            color: #065F46;
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            width: 100%;
+            height: 32px;
+            background: var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--text);
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+
+            .main-content {
+                margin-left: 240px;
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+
+            .header h2 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .search-box {
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: white url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%239CA3AF" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>') no-repeat 1rem center;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--text);
+        }
+
+        .category-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .category-header {
+            font-size: 1.25rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .category-badge {
+            background: var(--text);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 1.25rem;
+            font-size: 1.125rem;
+        }
+    </style>
 </head>
 <body>
-<h1>⚔️ SISTEMA – MEMÓRIA DO CAÇADOR</h1>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>BLANKSHEET</h1>
+            <p>Recall Automático V1</p>
+        </div>
 
-<div class="hud">
-<h2>Status</h2>
-<div class="stats">
-<div class="stat"><strong>Nível</strong><div id="level">1</div></div>
-<div class="stat"><strong>XP</strong><div id="xp">0/100</div><div class="bar"><div id="xpBar"></div></div></div>
-<div class="stat"><strong>Rank</strong><div id="rank">E</div></div>
-<div class="stat"><strong>Streak</strong><div id="streak">0 dias</div></div>
-</div>
-<div id="alert" class="warn"></div>
-</div>
+        <nav class="nav-menu">
+            <div class="nav-item active" data-page="cerebro">
+                <span class="nav-icon">●</span>
+                <span>Cérebro</span>
+            </div>
+            <div class="nav-item" data-page="progresso">
+                <span class="nav-icon">📊</span>
+                <span>Progresso</span>
+            </div>
+            <div class="nav-item" data-page="sistema">
+                <span class="nav-icon">⚙️</span>
+                <span>Sistema</span>
+            </div>
+        </nav>
 
-<div class="hud">
-<h2>📜 Nova Memória</h2>
-<input id="title" placeholder="Conteúdo" />
-<textarea id="content" placeholder="Resumo" rows="3"></textarea>
-<select id="subject">
-<optgroup label="🔬 Ciências da Natureza">
-<option>Biologia</option>
-<option>Química</option>
-<option>Física</option>
-</optgroup>
-<optgroup label="📚 Ciências Humanas">
-<option>História</option>
-<option>Geografia</option>
-<option>Filosofia</option>
-<option>Sociologia</option>
-</optgroup>
-<optgroup label="✍️ Linguagens">
-<option>Português</option>
-<option>Literatura</option>
-<option>Língua Estrangeira</option>
-<option>Artes</option>
-<option>Educação Física</option>
-<option>TIC</option>
-</optgroup>
-<optgroup label="🔢 Matemática">
-<option>Matemática</option>
-</optgroup>
-<optgroup label="📌 Outros">
-<option>Outro</option>
-</optgroup>
-</select>
-<button onclick="addItem()">✨ Registrar</button>
-</div>
+        <button class="add-topic-btn" onclick="openAddTopicModal()">+ Novo Tópico</button>
+    </aside>
 
-<div class="hud"><h2>🧠 Revisões Pendentes</h2><div id="due"></div></div>
-<div class="hud"><h2>📋 Agenda de Revisões</h2><div id="agenda"></div></div>
-<div class="hud"><h2>📆 Calendário da Semana</h2><div id="calendar" class="calendar"></div></div>
-<div class="hud"><h2>📚 Todos os Conteúdos</h2><div id="allItems"></div></div>
-<div class="hud">
-<h2>💾 Backup & Restauração</h2>
-<div style="display:flex;gap:10px;flex-wrap:wrap">
-<button onclick="exportData()" style="flex:1;background:var(--green)">📥 Exportar Dados</button>
-<button onclick="document.getElementById('importFile').click()" style="flex:1;background:var(--yellow);color:#000">📤 Importar Dados</button>
-<button onclick="resetData()" style="flex:1;background:var(--red);color:#fff">🗑️ Resetar Tudo</button>
-</div>
-<input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-<small style="display:block;margin-top:10px;color:#6b7280">💡 Exporte regularmente para não perder seus dados!</small>
-</div>
-<div class="hud"><h2>🏆 Conquistas</h2><div id="achievements"></div></div>
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- CÉREBRO PAGE -->
+        <div class="page active" id="cerebro">
+            <header class="header">
+                <h2>SEU DOMÍNIO</h2>
+                <div class="stats-badges">
+                    <div class="badge">
+                        <strong>TÓPICOS:</strong> <span id="badge-topics">0</span>
+                    </div>
+                    <div class="badge">
+                        <strong>REVISÕES:</strong> <span id="badge-reviews">0</span>
+                    </div>
+                </div>
+            </header>
 
-<script>
-const KEY='solo_system_v2';
-let state=JSON.parse(localStorage.getItem(KEY))||{xp:0,level:1,streak:0,lastReview:null,items:[],ach:[]};
-const today=()=>new Date().toDateString();
-const save=()=>localStorage.setItem(KEY,JSON.stringify(state));
-const rank=l=>l<5?'E':l<10?'D':l<20?'C':l<35?'B':l<50?'A':'S';
+            <!-- URGENT SECTION -->
+            <section class="section">
+                <div class="section-header">
+                    <h3 class="section-title">Urgente (Recall Ativo)</h3>
+                    <div class="section-count" id="urgent-count">0</div>
+                </div>
+                <div id="urgent-container"></div>
+            </section>
 
-function addXP(x){state.xp+=x;while(state.xp>=100){state.xp-=100;state.level++;}}
+            <!-- CONSOLIDAÇÃO FUTURA -->
+            <section class="section">
+                <div class="section-header">
+                    <h3 class="section-title">Consolidação Futura</h3>
+                </div>
+                <div id="future-container"></div>
+            </section>
+        </div>
 
-function sm2(item,q){if(!item.reps){item.reps=0;item.ef=2.5;item.int=1}
-if(q<3){item.reps=0;item.int=1}else{item.reps++;if(item.reps==1)item.int=1;else if(item.reps==2)item.int=6;else item.int=Math.round(item.int*item.ef);item.ef=Math.max(1.3,item.ef+(0.1-(5-q)*(0.08+(5-q)*0.02)))}
-item.next=Date.now()+item.int*86400000}
+        <!-- PROGRESSO PAGE -->
+        <div class="page" id="progresso">
+            <header class="header">
+                <h2>PROGRESSO</h2>
+            </header>
 
-function addItem(){const t=title.value.trim(),c=content.value.trim(),s=subject.value;if(!t||!c)return;
-state.items.push({id:crypto.randomUUID(),t,c,s,next:Date.now()});save();render();title.value=content.value=''}
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-topics-stat">0</div>
+                    <div class="stat-label">Tópicos Totais</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="consolidated-stat">0</div>
+                    <div class="stat-label">Consolidados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="retention-stat">0%</div>
+                    <div class="stat-label">Retenção Média</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="streak-stat">0</div>
+                    <div class="stat-label">Dias de Streak</div>
+                </div>
+            </div>
 
-function review(id,q){const i=state.items.find(x=>x.id==id);if(!i)return;sm2(i,q);addXP(q>=3?20:5);
-if(state.lastReview===today()){}else{state.streak++;state.lastReview=today()}
-checkAch();save();render()}
+            <section class="section">
+                <div class="section-header">
+                    <h3 class="section-title">Progresso por Categoria</h3>
+                </div>
+                <div id="category-progress"></div>
+            </section>
 
-function deleteItem(id){if(confirm('⚠️ Deseja realmente apagar este conteúdo?')){state.items=state.items.filter(x=>x.id!=id);save();render()}}
+            <section class="section">
+                <div class="section-header">
+                    <h3 class="section-title">Histórico Recente</h3>
+                </div>
+                <div class="timeline" id="recent-timeline"></div>
+            </section>
+        </div>
 
-function checkAch(){if(state.streak>=7&&!state.ach.includes('7dias'))state.ach.push('7dias')}
+        <!-- SISTEMA PAGE -->
+        <div class="page" id="sistema">
+            <header class="header">
+                <h2>SISTEMA</h2>
+            </header>
 
-function exportData(){const data=JSON.stringify(state,null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`memoria-cacador-${new Date().toISOString().split('T')[0]}.json`;a.click();URL.revokeObjectURL(url);alert('✅ Dados exportados com sucesso!')}
+            <div class="search-box">
+                <input type="text" class="search-input" id="search-topics" placeholder="Buscar tópicos...">
+            </div>
 
-function importData(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(ev){try{const imported=JSON.parse(ev.target.result);if(confirm('⚠️ Isso vai substituir todos os dados atuais. Continuar?')){state=imported;save();render();alert('✅ Dados importados com sucesso!')}}catch(err){alert('❌ Erro ao importar arquivo. Verifique se é um arquivo válido.')}};reader.readAsText(file);e.target.value=''}
+            <div id="all-topics-container"></div>
+        </div>
+    </main>
 
-function resetData(){if(confirm('⚠️ ATENÇÃO: Isso vai apagar TODOS os seus dados permanentemente!'))if(confirm('🚨 Tem certeza absoluta? Esta ação não pode ser desfeita!')){localStorage.removeItem(KEY);state={xp:0,level:1,streak:0,lastReview:null,items:[],ach:[]};render();alert('✅ Todos os dados foram resetados!')}}
+    <!-- ADD TOPIC MODAL -->
+    <div class="modal" id="add-topic-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeAddTopicModal()">×</button>
+            <h2 class="modal-header">Novo Tópico</h2>
 
-function render(){level.innerText=state.level;xp.innerText=`${state.xp}/100`;xpBar.style.width=state.xp+'%';rankEl=rank(state.level);rank.innerText=rankEl;streak.innerText=state.streak+' dias';
-alert.innerText=state.items.filter(i=>i.next<=Date.now()).length>5?'⚠️ Muitas revisões pendentes!':'';
+            <form id="add-topic-form">
+                <div class="form-group">
+                    <label class="form-label">Nome do Tópico *</label>
+                    <input type="text" class="form-input" id="topic-name" placeholder="Ex: Segunda Lei da Termodinâmica" required>
+                </div>
 
-const d=due,ag=agenda,all=allItems;d.innerHTML=ag.innerHTML=all.innerHTML='';
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select class="form-select" id="topic-category" required>
+                        <option value="">Selecione...</option>
+                        <optgroup label="Ciências da Natureza">
+                            <option value="Física">Física</option>
+                            <option value="Química">Química</option>
+                            <option value="Biologia">Biologia</option>
+                        </optgroup>
+                        <optgroup label="Matemática">
+                            <option value="Matemática">Matemática</option>
+                        </optgroup>
+                        <optgroup label="Linguagens">
+                            <option value="Português">Português - Gramática</option>
+                            <option value="Literatura">Literatura</option>
+                            <option value="Redação">Redação</option>
+                            <option value="Inglês">Inglês</option>
+                            <option value="Espanhol">Espanhol</option>
+                            <option value="Artes">Artes</option>
+                            <option value="Educação Física">Educação Física</option>
+                        </optgroup>
+                        <optgroup label="Ciências Humanas">
+                            <option value="História">História</option>
+                            <option value="Geografia">Geografia</option>
+                            <option value="Filosofia">Filosofia</option>
+                            <option value="Sociologia">Sociologia</option>
+                        </optgroup>
+                        <optgroup label="Outras">
+                            <option value="Direito">Direito</option>
+                            <option value="Programação">Programação</option>
+                            <option value="other">Outra...</option>
+                        </optgroup>
+                    </select>
+                    <input type="text" class="form-input" id="topic-category-custom" placeholder="Digite a categoria" style="display: none; margin-top: 0.75rem;">
+                </div>
 
-// Revisões pendentes
-const pending=state.items.filter(i=>i.next<=Date.now());
-if(pending.length===0){d.innerHTML='<div class="empty">Nenhuma revisão pendente no momento! 🎉</div>'}
-else{pending.forEach(i=>d.innerHTML+=`<div class='card due'><button class='del' onclick="deleteItem('${i.id}')">🗑️</button><h3>${i.t}</h3><small>${i.s}</small><p>${i.c}</p><button class='good' onclick="review('${i.id}',5)">✅ Acertei</button> <button class='bad' onclick="review('${i.id}',2)">❌ Errei</button></div>`)}
+                <div class="form-group">
+                    <label class="form-label">Complexidade Estimada</label>
+                    <div class="slider-container">
+                        <div class="slider-value" id="complexity-display">20min</div>
+                        <input type="range" class="slider" id="topic-complexity" min="5" max="60" value="20" step="5">
+                        <div class="slider-labels">
+                            <span>5min</span>
+                            <span>60min</span>
+                        </div>
+                    </div>
+                </div>
 
-// Agenda de revisões futuras
-const sorted=[...state.items].filter(i=>i.next>Date.now()).sort((a,b)=>a.next-b.next);
-if(sorted.length===0){ag.innerHTML='<div class="empty">Nenhuma revisão agendada</div>'}
-else{sorted.forEach(i=>{const dt=new Date(i.next);const dias=Math.ceil((i.next-Date.now())/86400000);
-ag.innerHTML+=`<div class='agenda-item'><div><strong>${i.t}</strong><br/><small>${i.s}</small></div><span class='date-badge'>${dt.toLocaleDateString('pt-BR')} (${dias}d)</span></div>`})}
+                <div class="form-group">
+                    <label class="form-label">Material de Apoio (opcional)</label>
+                    <input type="text" class="form-input" id="material-link" placeholder="Link ou referência">
+                </div>
 
-// Calendário
-calendar.innerHTML='';
-for(let i=0;i<7;i++){const day=new Date();day.setDate(day.getDate()+i);const count=state.items.filter(it=>new Date(it.next).toDateString()==day.toDateString()).length;
-calendar.innerHTML+=`<div class='day'><strong>${day.toLocaleDateString('pt-BR',{weekday:'short'})}</strong><br/>${count} revisão${count!=1?'ões':''}${count>0?' 📌':''}</div>`}
+                <div class="form-group">
+                    <label class="form-label">Objetivo</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="objective" value="continuous" checked>
+                            <span>Aprendizado contínuo</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="objective" value="exam">
+                            <span>Prova em: <input type="date" class="form-input" id="exam-date" style="width: auto; margin-left: 0.5rem;"></span>
+                        </label>
+                    </div>
+                </div>
 
-// Todos os conteúdos
-if(state.items.length===0){all.innerHTML='<div class="empty">Nenhum conteúdo cadastrado ainda</div>'}
-else{const allSorted=[...state.items].sort((a,b)=>a.next-b.next);
-allSorted.forEach(i=>{const dt=new Date(i.next);const isOverdue=i.next<=Date.now();
-all.innerHTML+=`<div class='card${isOverdue?' due':''}'><button class='del' onclick="deleteItem('${i.id}')">🗑️</button><h3>${i.t}</h3><small>${i.s} — ${isOverdue?'<span class="warn">⏰ REVISAR AGORA</span>':dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</small><p>${i.c}</p></div>`})}
+                <div class="form-group">
+                    <label class="form-label">Pré-teste (sem consultar)</label>
+                    <textarea class="form-textarea" id="pretest-answer" placeholder="Em uma frase, o que você já sabe sobre este tópico?"></textarea>
+                </div>
 
-achievements.innerHTML=state.ach.includes('7dias')?'<span class="badge">🔥 7 dias consecutivos</span>':'<div class="empty">Complete revisões para desbloquear conquistas!</div>'}
+                <button type="submit" class="btn btn-full btn-accent">Agendar Primeira Revisão</button>
+            </form>
+        </div>
+    </div>
 
-render();
-</script>
+    <!-- REVIEW MODAL -->
+    <div class="modal" id="review-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeReviewModal()">×</button>
+            <div id="review-content"></div>
+        </div>
+    </div>
+
+    <!-- TOPIC DETAIL MODAL -->
+    <div class="modal" id="topic-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeTopicModal()">×</button>
+            <div id="topic-detail-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        class DataStore {
+            constructor() {
+                this.topics = this.loadData('topics') || [];
+                this.reviews = this.loadData('reviews') || [];
+                this.settings = this.loadData('settings') || {
+                    streak: 0,
+                    lastReviewDate: null
+                };
+            }
+
+            loadData(key) {
+                const data = localStorage.getItem(`blanksheet_${key}`);
+                return data ? JSON.parse(data) : null;
+            }
+
+            saveData(key, data) {
+                localStorage.setItem(`blanksheet_${key}`, JSON.stringify(data));
+            }
+
+            saveAll() {
+                this.saveData('topics', this.topics);
+                this.saveData('reviews', this.reviews);
+                this.saveData('settings', this.settings);
+            }
+
+            addTopic(topic) {
+                topic.id = Date.now().toString();
+                topic.createdAt = new Date().toISOString();
+                topic.nextReview = this.calculateNextReview(new Date(), 1);
+                topic.reviewCount = 0;
+                topic.totalAccuracy = 0;
+                topic.lastReviewDate = null;
+                topic.interval = 1;
+                this.topics.push(topic);
+                this.saveAll();
+                return topic;
+            }
+
+            addReview(topicId, reviewData) {
+                const review = {
+                    id: Date.now().toString(),
+                    topicId: topicId,
+                    reviewNumber: reviewData.reviewNumber,
+                    accuracy: reviewData.accuracy,
+                    difficulty: reviewData.difficulty,
+                    hintsUsed: reviewData.hintsUsed,
+                    duration: reviewData.duration,
+                    notes: reviewData.notes,
+                    reviewedAt: new Date().toISOString()
+                };
+                this.reviews.push(review);
+                
+                const topic = this.topics.find(t => t.id === topicId);
+                if (topic) {
+                    topic.reviewCount++;
+                    topic.totalAccuracy = ((topic.totalAccuracy * (topic.reviewCount - 1)) + reviewData.accuracy) / topic.reviewCount;
+                    topic.lastReviewDate = new Date().toISOString();
+                    topic.interval = this.calculateInterval(topic, reviewData);
+                    topic.nextReview = this.calculateNextReview(new Date(), topic.interval);
+                }
+                
+                this.updateStreak();
+                this.saveAll();
+                return review;
+            }
+
+            calculateInterval(topic, reviewData) {
+                let baseInterval = topic.interval;
+                
+                if (topic.reviewCount === 1) return 3;
+                if (topic.reviewCount === 2) return 7;
+                if (topic.reviewCount === 3) return 14;
+                if (topic.reviewCount === 4) return 30;
+                
+                if (reviewData.difficulty === 'easy' && reviewData.accuracy >= 90) {
+                    return Math.round(baseInterval * 1.5);
+                } else if (reviewData.difficulty === 'hard' || reviewData.accuracy < 60) {
+                    return Math.round(baseInterval * 0.6);
+                } else {
+                    return Math.round(baseInterval * 1.2);
+                }
+            }
+
+            calculateNextReview(fromDate, daysToAdd) {
+                const next = new Date(fromDate);
+                next.setDate(next.getDate() + daysToAdd);
+                return next.toISOString();
+            }
+
+            updateStreak() {
+                const today = new Date().toDateString();
+                const lastReview = this.settings.lastReviewDate ? new Date(this.settings.lastReviewDate).toDateString() : null;
+                
+                if (lastReview === today) return;
+                
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                if (lastReview === yesterday.toDateString()) {
+                    this.settings.streak++;
+                } else if (lastReview !== today) {
+                    this.settings.streak = 1;
+                }
+                
+                this.settings.lastReviewDate = new Date().toISOString();
+                this.saveAll();
+            }
+
+            getTopicById(id) {
+                return this.topics.find(t => t.id === id);
+            }
+
+            getReviewsByTopic(topicId) {
+                return this.reviews.filter(r => r.topicId === topicId);
+            }
+
+            deleteTopic(id) {
+                this.topics = this.topics.filter(t => t.id !== id);
+                this.reviews = this.reviews.filter(r => r.topicId !== id);
+                this.saveAll();
+            }
+
+            getTopicsByStatus() {
+                const now = new Date();
+                const urgent = [];
+                const ready = [];
+                const future = [];
+                
+                this.topics.forEach(topic => {
+                    const nextReview = new Date(topic.nextReview);
+                    const daysDiff = Math.floor((nextReview - now) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysDiff <= 0) {
+                        urgent.push(topic);
+                    } else {
+                        future.push(topic);
+                    }
+                });
+                
+                return { urgent, ready, future };
+            }
+        }
+
+        const store = new DataStore();
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const page = item.dataset.page;
+                
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                
+                item.classList.add('active');
+                document.getElementById(page).classList.add('active');
+                
+                if (page === 'cerebro') renderCerebro();
+                if (page === 'progresso') renderProgresso();
+                if (page === 'sistema') renderSistema();
+            });
+        });
+
+        // Render Cérebro
+        function renderCerebro() {
+            const { urgent, future } = store.getTopicsByStatus();
+            
+            // Update badges
+            document.getElementById('badge-topics').textContent = store.topics.length;
+            document.getElementById('badge-reviews').textContent = store.reviews.length;
+            document.getElementById('urgent-count').textContent = urgent.length;
+            
+            // Urgent container
+            const urgentContainer = document.getElementById('urgent-container');
+            if (urgent.length === 0) {
+                urgentContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-text">Tudo em dia. Memória estável.</div>
+                    </div>
+                `;
+            } else {
+                urgentContainer.innerHTML = urgent.map(topic => {
+                    const daysLate = Math.abs(Math.floor((new Date(topic.nextReview) - new Date()) / (1000 * 60 * 60 * 24)));
+                    return `
+                        <div class="topic-card urgent" onclick="openTopicDetail('${topic.id}')">
+                            <div class="topic-indicator urgent"></div>
+                            <div class="topic-info">
+                                <div class="topic-name">${topic.name}</div>
+                                <div class="topic-meta">${topic.category} • ${daysLate > 0 ? daysLate + ' dia(s) atrasado' : 'Revisar hoje'} • Revisão #${topic.reviewCount + 1}</div>
+                            </div>
+                            <div class="topic-actions">
+                                <button class="btn btn-accent" onclick="event.stopPropagation(); startReview('${topic.id}')">Revisar</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            // Future container
+            const futureContainer = document.getElementById('future-container');
+            const futureToShow = future.slice(0, 8);
+            
+            if (futureToShow.length === 0) {
+                futureContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-text">Nenhuma revisão futura agendada</div>
+                    </div>
+                `;
+            } else {
+                futureContainer.innerHTML = futureToShow.map(topic => {
+                    const daysUntil = Math.ceil((new Date(topic.nextReview) - new Date()) / (1000 * 60 * 60 * 24));
+                    const date = new Date(topic.nextReview).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+                    return `
+                        <div class="topic-card" onclick="openTopicDetail('${topic.id}')">
+                            <div class="topic-info">
+                                <div class="topic-name">${topic.name}</div>
+                                <div class="topic-meta">${topic.category} • Em ${daysUntil} dia(s) (${date})</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Render Progresso
+        function renderProgresso() {
+            document.getElementById('total-topics-stat').textContent = store.topics.length;
+            
+            const consolidated = store.topics.filter(t => t.interval >= 30).length;
+            document.getElementById('consolidated-stat').textContent = consolidated;
+            
+            const avgRetention = store.topics.length > 0 
+                ? Math.round(store.topics.reduce((sum, t) => sum + t.totalAccuracy, 0) / store.topics.length)
+                : 0;
+            document.getElementById('retention-stat').textContent = avgRetention + '%';
+            
+            document.getElementById('streak-stat').textContent = store.settings.streak;
+            
+            // Category progress
+            const categories = {};
+            store.topics.forEach(topic => {
+                if (!categories[topic.category]) {
+                    categories[topic.category] = { total: 0, avgAccuracy: 0 };
+                }
+                categories[topic.category].total++;
+                categories[topic.category].avgAccuracy += topic.totalAccuracy;
+            });
+            
+            const categoryProgress = document.getElementById('category-progress');
+            if (Object.keys(categories).length === 0) {
+                categoryProgress.innerHTML = '<div class="empty-state"><div class="empty-state-text">Sem dados</div></div>';
+            } else {
+                categoryProgress.innerHTML = Object.entries(categories).map(([cat, data]) => {
+                    const avg = Math.round(data.avgAccuracy / data.total);
+                    return `
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                                <strong>${cat}</strong>
+                                <span style="color: var(--text-light);">${data.total} tópico(s) • ${avg}% retenção</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${avg}%;">${avg}%</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            // Recent timeline
+            const timeline = document.getElementById('recent-timeline');
+            const recent = store.reviews.slice(-8).reverse();
+            
+            if (recent.length === 0) {
+                timeline.innerHTML = '<div class="empty-state"><div class="empty-state-text">Sem revisões</div></div>';
+            } else {
+                timeline.innerHTML = recent.map(review => {
+                    const topic = store.getTopicById(review.topicId);
+                    const date = new Date(review.reviewedAt);
+                    return `
+                        <div class="timeline-item">
+                            <div class="timeline-content">
+                                <div class="timeline-date">${date.toLocaleDateString('pt-BR')} • ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
+                                <strong>${topic.name}</strong>
+                                <p style="margin-top: 0.5rem; color: var(--text-light);">
+                                    Revisão #${review.reviewNumber} • ${review.accuracy}% acerto • ${review.duration}min
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Render Sistema
+        function renderSistema() {
+            const searchInput = document.getElementById('search-topics');
+            const container = document.getElementById('all-topics-container');
+            
+            function render(searchTerm = '') {
+                let topics = store.topics;
+                
+                if (searchTerm) {
+                    topics = topics.filter(t => 
+                        t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        t.category.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                }
+                
+                if (topics.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-text">Nenhum tópico</div></div>';
+                    return;
+                }
+                
+                const grouped = {};
+                topics.forEach(topic => {
+                    if (!grouped[topic.category]) grouped[topic.category] = [];
+                    grouped[topic.category].push(topic);
+                });
+                
+                container.innerHTML = Object.entries(grouped).map(([category, topicsInCat]) => `
+                    <div class="category-section">
+                        <div class="category-header">
+                            ${category}
+                            <span class="category-badge">${topicsInCat.length}</span>
+                        </div>
+                        ${topicsInCat.map(topic => {
+                            let stars = '⭐';
+                            if (topic.reviewCount >= 2 && topic.interval >= 7) stars = '⭐⭐';
+                            if (topic.reviewCount >= 4 && topic.interval >= 14) stars = '⭐⭐⭐';
+                            if (topic.reviewCount >= 6 && topic.interval >= 30) stars = '⭐⭐⭐⭐';
+                            if (topic.reviewCount >= 8 && topic.interval >= 90) stars = '⭐⭐⭐⭐⭐';
+                            
+                            return `
+                                <div class="topic-card" onclick="openTopicDetail('${topic.id}')">
+                                    <div class="topic-info">
+                                        <div class="topic-name">${topic.name} ${stars}</div>
+                                        <div class="topic-meta">${topic.reviewCount} revisões • ${Math.round(topic.totalAccuracy)}% acerto • Intervalo: ${topic.interval}d</div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `).join('');
+            }
+            
+            searchInput.addEventListener('input', (e) => render(e.target.value));
+            render();
+        }
+
+        // Add Topic Modal
+        function openAddTopicModal() {
+            document.getElementById('add-topic-modal').classList.add('active');
+        }
+
+        function closeAddTopicModal() {
+            document.getElementById('add-topic-modal').classList.remove('active');
+        }
+
+        document.getElementById('topic-category').addEventListener('change', (e) => {
+            const custom = document.getElementById('topic-category-custom');
+            custom.style.display = e.target.value === 'other' ? 'block' : 'none';
+        });
+
+        document.getElementById('topic-complexity').addEventListener('input', (e) => {
+            document.getElementById('complexity-display').textContent = e.target.value + 'min';
+        });
+
+        document.getElementById('add-topic-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const categorySelect = document.getElementById('topic-category');
+            let category = categorySelect.value;
+            
+            // Validação
+            if (!category) {
+                alert('⚠️ Por favor, selecione uma categoria!');
+                return;
+            }
+            
+            if (category === 'other') {
+                category = document.getElementById('topic-category-custom').value.trim();
+                if (!category) {
+                    alert('⚠️ Por favor, digite uma categoria personalizada!');
+                    return;
+                }
+            }
+            
+            const topicName = document.getElementById('topic-name').value.trim();
+            if (!topicName) {
+                alert('⚠️ Por favor, digite o nome do tópico!');
+                return;
+            }
+            
+            const examDate = document.querySelector('input[name="objective"]:checked').value === 'exam'
+                ? document.getElementById('exam-date').value
+                : null;
+            
+            const topic = {
+                name: topicName,
+                category: category,
+                complexity: parseInt(document.getElementById('topic-complexity').value),
+                materialLink: document.getElementById('material-link').value,
+                examDate: examDate,
+                pretestAnswer: document.getElementById('pretest-answer').value
+            };
+            
+            store.addTopic(topic);
+            
+            // Reset form
+            e.target.reset();
+            document.getElementById('complexity-display').textContent = '20min';
+            document.getElementById('topic-category-custom').style.display = 'none';
+            
+            closeAddTopicModal();
+            alert('✅ Tópico adicionado com sucesso!\nPrimeira revisão agendada para amanhã.');
+            renderCerebro();
+        });
+
+        // Review Session
+        let currentReview = null;
+        let reviewStartTime = null;
+        let timerInterval = null;
+        let hintsRevealed = 0;
+
+        function startReview(topicId) {
+            currentReview = store.getTopicById(topicId);
+            reviewStartTime = Date.now();
+            hintsRevealed = 0;
+            
+            document.getElementById('review-modal').classList.add('active');
+            showReviewPreparation();
+        }
+
+        function showReviewPreparation() {
+            const content = document.getElementById('review-content');
+            const daysAgo = currentReview.lastReviewDate 
+                ? Math.floor((new Date() - new Date(currentReview.lastReviewDate)) / (1000 * 60 * 60 * 24))
+                : null;
+            
+            content.innerHTML = `
+                <div class="review-screen">
+                    <h2 class="modal-header">Preparação</h2>
+                    <div class="review-instruction">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">${currentReview.name}</h3>
+                        <p style="color: var(--text-light);">
+                            ${currentReview.category} • 
+                            ${currentReview.complexity} minutos estimados
+                            ${daysAgo ? ` • Última: ${daysAgo} dia(s) atrás` : ''}
+                        </p>
+                        <p style="margin-top: 1rem; font-weight: 700;">Revisão #${currentReview.reviewCount + 1}</p>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <strong>PREPARE-SE:</strong>
+                        <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                            <li>Folhas em branco</li>
+                            <li>Caneta/lápis</li>
+                            <li>Silêncio</li>
+                        </ul>
+                    </div>
+                    
+                    <button class="btn btn-full btn-accent" onclick="showReviewInstructions()">Iniciar</button>
+                </div>
+            `;
+        }
+
+        function showReviewInstructions() {
+            const content = document.getElementById('review-content');
+            content.innerHTML = `
+                <div class="review-screen">
+                    <h2 class="modal-header">Instruções</h2>
+                    <div class="review-instruction">
+                        <strong>SEM CONSULTAR NADA:</strong>
+                        <ol style="text-align: left; padding-left: 1.5rem; margin-top: 1rem; line-height: 2;">
+                            <li>Escreva TUDO sobre "${currentReview.name}"</li>
+                            <li>Não se preocupe com ordem</li>
+                            <li>Inclua: definições, etapas, exemplos, fórmulas</li>
+                            <li>Quando parar de lembrar, volte aqui</li>
+                        </ol>
+                    </div>
+                    <button class="btn btn-full" onclick="showReviewActive()">Comecei</button>
+                </div>
+            `;
+        }
+
+        function showReviewActive() {
+            const content = document.getElementById('review-content');
+            content.innerHTML = `
+                <div class="review-screen">
+                    <div class="timer" id="review-timer">00:00</div>
+                    <h3 style="margin: 2rem 0;">📄 ${currentReview.name}</h3>
+                    
+                    <button class="btn btn-outline" onclick="revealHint()" style="margin: 2rem 0;">💡 Dica</button>
+                    
+                    <div class="hints-section" id="hints-container" style="display: none;">
+                        <div class="hint" id="hint-1"><strong>Dica 1:</strong> Em que contexto?</div>
+                        <div class="hint" id="hint-2"><strong>Dica 2:</strong> Componentes principais?</div>
+                        <div class="hint" id="hint-3"><strong>Dica 3:</strong> Relações com outros?</div>
+                        <div class="hint" id="hint-4"><strong>Dica 4:</strong> Exemplos práticos?</div>
+                    </div>
+                    
+                    <button class="btn btn-full btn-accent" onclick="showReviewCheck()">Parei</button>
+                </div>
+            `;
+            
+            let seconds = 0;
+            timerInterval = setInterval(() => {
+                seconds++;
+                const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const secs = (seconds % 60).toString().padStart(2, '0');
+                document.getElementById('review-timer').textContent = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function revealHint() {
+            hintsRevealed++;
+            document.getElementById('hints-container').style.display = 'block';
+            const hint = document.getElementById(`hint-${hintsRevealed}`);
+            if (hint) hint.classList.add('revealed');
+        }
+
+        function showReviewCheck() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            const content = document.getElementById('review-content');
+            content.innerHTML = `
+                <div class="review-screen">
+                    <h2 class="modal-header">Consulte</h2>
+                    <div class="review-instruction">
+                        <ol style="text-align: left; padding-left: 1.5rem; line-height: 2;">
+                            <li>Pegue suas anotações</li>
+                            <li>Compare</li>
+                            <li>Marque: ✅ Acertos ⚠️ Incompleto ❌ Erros</li>
+                        </ol>
+                    </div>
+                    ${currentReview.materialLink ? `<a href="${currentReview.materialLink}" target="_blank" class="btn btn-outline" style="display: inline-block; margin: 1rem 0;">Material</a>` : ''}
+                    <button class="btn btn-full" onclick="showReviewFeedback()">Corrigi</button>
+                </div>
+            `;
+        }
+
+        function showReviewFeedback() {
+            const content = document.getElementById('review-content');
+            content.innerHTML = `
+                <div class="review-screen">
+                    <h2 class="modal-header">Avaliação</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Quanto acertou?</label>
+                        <div class="slider-container">
+                            <div class="slider-value" id="accuracy-display">70%</div>
+                            <input type="range" class="slider" id="accuracy-slider" min="0" max="100" value="70" step="5">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Como foi?</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="difficulty" value="easy">
+                                Fácil demais
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="difficulty" value="good" checked>
+                                Desafiador
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="difficulty" value="hard">
+                                Muito difícil
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Notas (opcional)</label>
+                        <textarea class="form-textarea" id="review-notes"></textarea>
+                    </div>
+                    
+                    <button class="btn btn-full btn-accent" onclick="completeReview()">Salvar</button>
+                </div>
+            `;
+            
+            document.getElementById('accuracy-slider').addEventListener('input', (e) => {
+                document.getElementById('accuracy-display').textContent = e.target.value + '%';
+            });
+        }
+
+        function completeReview() {
+            const accuracy = parseInt(document.getElementById('accuracy-slider').value);
+            const difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+            const notes = document.getElementById('review-notes').value;
+            const duration = Math.floor((Date.now() - reviewStartTime) / 60000);
+            
+            store.addReview(currentReview.id, {
+                reviewNumber: currentReview.reviewCount + 1,
+                accuracy,
+                difficulty,
+                hintsUsed: hintsRevealed,
+                duration,
+                notes
+            });
+            
+            const updated = store.getTopicById(currentReview.id);
+            const daysUntil = Math.ceil((new Date(updated.nextReview) - new Date()) / (1000 * 60 * 60 * 24));
+            
+            const content = document.getElementById('review-content');
+            content.innerHTML = `
+                <div class="review-screen">
+                    <h2 class="modal-header">Concluído</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${accuracy}%</div>
+                            <div class="stat-label">Acerto</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${duration}min</div>
+                            <div class="stat-label">Tempo</div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <strong>Próxima revisão:</strong><br>
+                        ${daysUntil} dia(s) • ${new Date(updated.nextReview).toLocaleDateString('pt-BR')}
+                    </div>
+                    
+                    <button class="btn btn-full" onclick="closeReviewModal(); checkNextReview();">Continuar</button>
+                </div>
+            `;
+        }
+
+        function checkNextReview() {
+            const { urgent } = store.getTopicsByStatus();
+            if (urgent.length > 0) {
+                if (confirm(`${urgent.length} revisão(ões) pendente(s). Continuar?`)) {
+                    startReview(urgent[0].id);
+                } else {
+                    renderCerebro();
+                }
+            } else {
+                alert('🎉 Todas completas!');
+                renderCerebro();
+            }
+        }
+
+        function closeReviewModal() {
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('review-modal').classList.remove('active');
+            renderCerebro();
+        }
+
+        // Topic Detail
+        function openTopicDetail(topicId) {
+            const topic = store.getTopicById(topicId);
+            const reviews = store.getReviewsByTopic(topicId);
+            const modal = document.getElementById('topic-modal');
+            const content = document.getElementById('topic-detail-content');
+            
+            let stars = '⭐';
+            if (topic.reviewCount >= 2 && topic.interval >= 7) stars = '⭐⭐';
+            if (topic.reviewCount >= 4 && topic.interval >= 14) stars = '⭐⭐⭐';
+            if (topic.reviewCount >= 6 && topic.interval >= 30) stars = '⭐⭐⭐⭐';
+            if (topic.reviewCount >= 8 && topic.interval >= 90) stars = '⭐⭐⭐⭐⭐';
+            
+            content.innerHTML = `
+                <h2 class="modal-header">${topic.name}</h2>
+                <p style="color: var(--text-light); margin-bottom: 2rem;">${topic.category} ${stars}</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">${topic.reviewCount}</div>
+                        <div class="stat-label">Revisões</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${Math.round(topic.totalAccuracy)}%</div>
+                        <div class="stat-label">Acerto</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${topic.interval}d</div>
+                        <div class="stat-label">Intervalo</div>
+                    </div>
+                </div>
+                
+                <div class="timeline">
+                    ${reviews.length === 0 ? '<p style="color: var(--text-light);">Sem revisões</p>' : reviews.reverse().map(r => `
+                        <div class="timeline-item">
+                            <div class="timeline-content">
+                                <div class="timeline-date">Revisão #${r.reviewNumber} • ${new Date(r.reviewedAt).toLocaleDateString('pt-BR')}</div>
+                                <p>${r.accuracy}% • ${r.duration}min • ${r.difficulty === 'easy' ? 'Fácil' : r.difficulty === 'hard' ? 'Difícil' : 'Desafiador'}</p>
+                                ${r.notes ? `<p style="font-style: italic; margin-top: 0.5rem;">"${r.notes}"</p>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <button class="btn btn-full btn-accent" onclick="deleteTopic('${topic.id}')">Excluir</button>
+            `;
+            
+            modal.classList.add('active');
+        }
+
+        function closeTopicModal() {
+            document.getElementById('topic-modal').classList.remove('active');
+        }
+
+        function deleteTopic(id) {
+            if (confirm('Excluir este tópico?')) {
+                store.deleteTopic(id);
+                closeTopicModal();
+                renderCerebro();
+            }
+        }
+
+        // Initialize
+        renderCerebro();
+    </script>
 </body>
 </html>
