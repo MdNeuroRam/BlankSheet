@@ -3,870 +3,1279 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SISTEMA — Protocolo Medicina</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<title>FletcherMed</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #03040a;
-    --bg2: #070b14;
-    --panel: #0a0f1e;
-    --panel2: #0d1428;
-    --blue: #00b4ff;
-    --blue2: #0066cc;
-    --purple: #7c3aed;
-    --purple2: #a855f7;
-    --gold: #f0a500;
-    --gold2: #ffd060;
-    --red: #ff3a3a;
-    --green: #00ff88;
-    --text: #c8d8f0;
-    --text2: #7a9abf;
-    --border: rgba(0,180,255,0.18);
-    --border2: rgba(0,180,255,0.35);
-    --glow: 0 0 20px rgba(0,180,255,0.35);
-    --glow2: 0 0 40px rgba(0,180,255,0.2);
-    --purple-glow: 0 0 20px rgba(168,85,247,0.4);
-    --gold-glow: 0 0 20px rgba(240,165,0,0.4);
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-  #particles {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 0; overflow: hidden;
-  }
-  .particle {
-    position: absolute; width: 2px; height: 2px;
-    background: var(--blue); border-radius: 50%;
-    animation: float linear infinite; opacity: 0;
-  }
-  @keyframes float {
-    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 0.6; }
-    100% { transform: translateY(-100px) translateX(var(--dx)); opacity: 0; }
-  }
-  body::before {
-    content: '';
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background-image:
-      linear-gradient(rgba(0,180,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,180,255,0.03) 1px, transparent 1px);
-    background-size: 60px 60px;
-    z-index: 0; pointer-events: none;
-  }
-  .wrapper {
-    position: relative; z-index: 1;
-    max-width: 1100px; margin: 0 auto;
-    padding: 0 20px 80px;
-  }
-  header { padding: 40px 0 20px; text-align: center; }
-  .system-badge {
-    display: inline-block;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px; letter-spacing: 4px;
-    color: var(--blue); border: 1px solid var(--blue);
-    padding: 4px 16px; margin-bottom: 16px;
-    animation: pulse-border 2s ease-in-out infinite;
-  }
-  @keyframes pulse-border {
-    0%,100% { box-shadow: 0 0 6px rgba(0,180,255,0.3); }
-    50% { box-shadow: 0 0 18px rgba(0,180,255,0.7); }
-  }
-  h1 {
-    font-family: 'Orbitron', monospace;
-    font-size: clamp(28px, 6vw, 54px); font-weight: 900;
-    letter-spacing: 3px; line-height: 1;
-    background: linear-gradient(135deg, #fff 0%, var(--blue) 50%, var(--purple2) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    animation: title-glow 3s ease-in-out infinite;
-  }
-  @keyframes title-glow {
-    0%,100% { filter: drop-shadow(0 0 8px rgba(0,180,255,0.4)); }
-    50% { filter: drop-shadow(0 0 20px rgba(168,85,247,0.6)); }
-  }
-  .subtitle { font-size: 14px; letter-spacing: 6px; color: var(--text2); margin-top: 8px; text-transform: uppercase; font-family: 'Share Tech Mono', monospace; }
+:root {
+  --red: #C8102E;
+  --red-dark: #8B0000;
+  --red-muted: #7a1020;
+  --gold: #C9A84C;
+  --gold-muted: #8a6e2e;
+  --ink: #0A0A0A;
+  --ink2: #111111;
+  --ink3: #1a1a1a;
+  --smoke: #2a2a2a;
+  --ash: #888;
+  --light: #d4d0c8;
+  --cream: #f0ece0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--light);font-family:'Barlow',sans-serif;font-size:14px;line-height:1.6;min-height:100vh}
+input,textarea,select,button{font-family:inherit}
 
-  /* ALERT */
-  .alert-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 9998; opacity: 0; animation: fade-in 0.3s 0.2s forwards; }
-  @keyframes fade-in { to { opacity: 1; } }
-  .alert-popup {
-    position: fixed; top: 50%; left: 50%;
-    transform: translate(-50%,-50%) scale(0.85);
-    background: var(--bg); border: 2px solid var(--blue);
-    box-shadow: var(--glow), inset 0 0 40px rgba(0,180,255,0.04);
-    padding: 40px 48px; text-align: center; z-index: 9999;
-    opacity: 0; animation: alert-appear 0.5s 0.5s forwards ease-out;
-    max-width: 460px; width: 90%;
-    clip-path: polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));
-  }
-  @keyframes alert-appear { to { opacity:1; transform: translate(-50%,-50%) scale(1); } }
-  .alert-icon { font-size: 48px; margin-bottom: 16px; display: block; animation: bounce 1s 1s ease-in-out infinite; }
-  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-  .alert-title { font-family: 'Orbitron', monospace; font-size: 20px; color: var(--blue); letter-spacing: 2px; margin-bottom: 12px; }
-  .alert-text { font-size: 15px; color: var(--text); line-height: 1.7; margin-bottom: 24px; }
-  .alert-text span { color: var(--gold2); font-weight: 700; }
-  .alert-btn {
-    background: linear-gradient(135deg, var(--blue2), var(--blue));
-    border: none; color: #fff;
-    font-family: 'Orbitron', monospace; font-size: 13px; letter-spacing: 2px;
-    padding: 12px 32px; cursor: pointer;
-    clip-path: polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);
-    transition: all 0.2s; box-shadow: var(--glow);
-  }
-  .alert-btn:hover { transform: scale(1.06); box-shadow: 0 0 30px rgba(0,180,255,0.6); }
+/* ── ONBOARDING ── */
+#onboarding{position:fixed;inset:0;background:var(--ink);z-index:1000;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:32px}
+.ob-inner{width:100%;max-width:560px}
+.ob-step{display:none}
+.ob-step.active{display:block}
+.ob-eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--red);margin-bottom:12px}
+.ob-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,64px);letter-spacing:2px;color:var(--cream);line-height:1;margin-bottom:20px}
+.ob-body{font-size:15px;color:var(--ash);font-weight:300;line-height:1.8;margin-bottom:32px;border-left:2px solid var(--red-muted);padding-left:20px}
+.ob-body strong{color:var(--light);font-weight:600}
+.ob-question{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ash);margin-bottom:12px}
+.ob-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:24px}
+.ob-opt{background:var(--ink2);border:1px solid var(--smoke);color:var(--light);padding:12px 16px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .15s;text-align:center}
+.ob-opt:hover,.ob-opt.selected{background:var(--red);border-color:var(--red);color:#fff}
+.ob-input{width:100%;background:var(--ink2);border:1px solid var(--smoke);color:var(--cream);padding:12px 16px;font-size:15px;font-weight:300;margin-bottom:24px;outline:none;transition:border .15s}
+.ob-input:focus{border-color:var(--red)}
+.ob-days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:24px}
+.ob-day{background:var(--ink2);border:1px solid var(--smoke);color:var(--ash);padding:10px 4px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .15s;text-align:center}
+.ob-day.selected{background:var(--red);border-color:var(--red);color:#fff}
+.ob-progress{display:flex;gap:6px;margin-bottom:32px}
+.ob-dot{width:8px;height:8px;background:var(--smoke)}
+.ob-dot.done{background:var(--red)}
+.ob-dot.active{background:var(--cream)}
+.btn-primary{background:var(--red);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:14px;letter-spacing:3px;text-transform:uppercase;padding:14px 36px;border:none;cursor:pointer;transition:background .15s}
+.btn-primary:hover{background:var(--red-dark)}
+.btn-ghost{background:transparent;color:var(--ash);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;padding:14px 24px;border:1px solid var(--smoke);cursor:pointer;transition:all .15s;margin-right:12px}
+.btn-ghost:hover{border-color:var(--ash);color:var(--light)}
+.ob-warn{color:var(--red);font-size:12px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-top:8px;display:none}
 
-  /* PLAYER CARD */
-  .player-card {
-    background: var(--panel); border: 1px solid var(--border2);
-    box-shadow: var(--glow2); padding: 28px; margin: 32px 0;
-    clip-path: polygon(0 0,calc(100% - 24px) 0,100% 24px,100% 100%,24px 100%,0 calc(100% - 24px));
-    position: relative; overflow: hidden;
-  }
-  .player-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg,transparent,var(--blue),var(--purple2),transparent);
-    animation: scan 3s linear infinite;
-  }
-  @keyframes scan { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-  .card-top { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
-  .rank-badge {
-    width: 80px; height: 80px; border: 2px solid var(--gold);
-    box-shadow: var(--gold-glow);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 900; color: var(--gold2);
-    clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
-    background: linear-gradient(135deg,#1a1000,#2a1f00); flex-shrink: 0;
-    animation: rank-pulse 2s ease-in-out infinite;
-  }
-  @keyframes rank-pulse { 0%,100% { box-shadow: var(--gold-glow); } 50% { box-shadow: 0 0 40px rgba(240,165,0,0.7); } }
-  .player-info { flex: 1; }
-  .player-name { font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
-  .player-name input {
-    background: transparent; border: none; border-bottom: 1px dashed var(--border2);
-    color: #fff; font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 700;
-    width: 220px; outline: none; cursor: pointer;
-  }
-  .player-name input:focus { border-bottom-color: var(--blue); }
-  .player-class { color: var(--purple2); font-size: 13px; letter-spacing: 3px; margin-top: 4px; }
-  .level-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
-  .level-label { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--text2); letter-spacing: 2px; white-space: nowrap; }
-  .xp-bar-wrap { flex: 1; height: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); position: relative; overflow: hidden; }
-  .xp-bar {
-    height: 100%; background: linear-gradient(90deg,var(--blue2),var(--blue),var(--purple2));
-    transition: width 0.8s ease; position: relative;
-  }
-  .xp-bar::after { content: ''; position: absolute; top:0; right:0; bottom:0; width: 20px; background: linear-gradient(90deg,transparent,rgba(255,255,255,0.4)); animation: shimmer 1.5s ease-in-out infinite; }
-  @keyframes shimmer { 0%,100% { opacity:0.4; } 50% { opacity:1; } }
-  .xp-text { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--blue); white-space: nowrap; }
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(130px,1fr)); gap: 12px; margin-top: 20px; }
-  .stat-item { background: var(--panel2); border: 1px solid var(--border); padding: 12px 16px; clip-path: polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%); transition: all 0.2s; }
-  .stat-item:hover { border-color: var(--blue); box-shadow: var(--glow); }
-  .stat-name { font-size: 11px; color: var(--text2); letter-spacing: 2px; text-transform: uppercase; }
-  .stat-val { font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 700; color: var(--blue); }
-  .stat-bar { height: 3px; background: rgba(255,255,255,0.05); margin-top: 6px; }
-  .stat-fill { height: 100%; background: linear-gradient(90deg,var(--blue2),var(--blue)); transition: width 1s ease; }
+/* ── MAIN APP ── */
+#app{display:none;min-height:100vh}
 
-  /* SECTION */
-  .section { margin: 36px 0; }
-  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-  .section-icon { font-size: 20px; }
-  .section-title { font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 700; letter-spacing: 3px; color: var(--blue); text-transform: uppercase; }
-  .section-badge { margin-left: auto; font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text2); border: 1px solid var(--border); padding: 2px 8px; }
+/* ── SIDEBAR ── */
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--ink2);border-right:1px solid var(--smoke);display:flex;flex-direction:column;z-index:100}
+.sb-logo{padding:28px 24px 20px;border-bottom:1px solid var(--smoke)}
+.sb-logo-text{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;color:var(--cream)}
+.sb-logo-text span{color:var(--red)}
+.sb-logo-sub{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ash);margin-top:2px}
+.sb-nav{flex:1;padding:16px 0}
+.sb-item{display:flex;align-items:center;gap:12px;padding:12px 24px;cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.sb-item:hover{background:var(--ink3);color:var(--light)}
+.sb-item.active{border-left-color:var(--red);background:var(--ink3);color:var(--cream)}
+.sb-item-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-item-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.sb-item-label{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:inherit}
+.sb-streak{margin:auto 24px 24px;background:var(--ink3);border:1px solid var(--smoke);padding:16px}
+.sb-streak-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--ash);margin-bottom:4px}
+.sb-streak-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--cream);line-height:1}
+.sb-streak-num span{color:var(--red)}
+.sb-streak-sub{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ash);margin-top:2px}
 
-  /* COUNTDOWN */
-  .countdown-panel {
-    background: var(--panel); border: 1px solid var(--border2); box-shadow: var(--glow2);
-    padding: 24px; text-align: center;
-    clip-path: polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));
-    position: relative; overflow: hidden;
-  }
-  .countdown-panel::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%,rgba(255,58,58,0.05) 0%,transparent 70%); pointer-events: none; }
-  .countdown-label { font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 4px; color: var(--red); margin-bottom: 12px; }
-  .countdown-digits { display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .cd-unit { text-align: center; }
-  .cd-num {
-    font-family: 'Orbitron', monospace; font-size: clamp(26px,7vw,52px); font-weight: 900; color: #fff;
-    text-shadow: 0 0 20px rgba(255,58,58,0.6); display: block; min-width: 78px;
-    background: var(--panel2); border: 1px solid rgba(255,58,58,0.3); padding: 8px 4px;
-  }
-  .cd-sep { font-family: 'Orbitron', monospace; font-size: 40px; color: var(--red); margin-top: -16px; }
-  .cd-label { font-size: 11px; color: var(--text2); letter-spacing: 2px; margin-top: 4px; }
-  .target-row { display: flex; justify-content: center; gap: 20px; margin-top: 16px; flex-wrap: wrap; }
-  .target-badge { font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; padding: 8px 20px; clip-path: polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%); letter-spacing: 1px; }
-  .target-badge.usp { background: linear-gradient(135deg,#1a0033,#3d0080); border: 1px solid var(--purple2); color: var(--purple2); box-shadow: var(--purple-glow); }
-  .target-badge.ufmg { background: linear-gradient(135deg,#001a33,#003d80); border: 1px solid var(--blue); color: var(--blue); box-shadow: var(--glow); }
+/* ── MAIN CONTENT ── */
+#main{margin-left:220px;padding:40px 40px 80px}
+.page{display:none}
+.page.active{display:block}
+.page-header{margin-bottom:36px}
+.page-eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--red);margin-bottom:6px}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;color:var(--cream);line-height:1}
+.page-sub{font-size:13px;color:var(--ash);font-weight:300;margin-top:6px}
 
-  /* QUESTS */
-  .quest-list { display: flex; flex-direction: column; gap: 10px; }
-  .quest {
-    background: var(--panel); border: 1px solid var(--border); padding: 16px 20px;
-    display: flex; align-items: center; gap: 16px; cursor: pointer;
-    transition: all 0.25s;
-    clip-path: polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%);
-    position: relative; overflow: hidden;
-  }
-  .quest:hover { border-color: var(--blue); transform: translateX(4px); box-shadow: var(--glow); }
-  .quest.done { opacity: 0.5; }
-  .quest.done .quest-check { background: var(--green); border-color: var(--green); color: #000; }
-  .quest-check { width: 24px; height: 24px; border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; transition: all 0.2s; clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); }
-  .quest-body { flex: 1; }
-  .quest-name { font-weight: 600; font-size: 15px; color: var(--text); }
-  .quest-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
-  .quest-xp { font-family: 'Orbitron', monospace; font-size: 12px; color: var(--gold); white-space: nowrap; }
-  .quest-diff { font-size: 11px; padding: 2px 8px; border: 1px solid; font-family: 'Share Tech Mono', monospace; letter-spacing: 1px; }
-  .quest-diff.s { border-color: var(--purple2); color: var(--purple2); }
-  .quest-diff.a { border-color: var(--red); color: var(--red); }
-  .quest-diff.b { border-color: var(--gold); color: var(--gold); }
-  .quest-diff.c { border-color: var(--blue); color: var(--blue); }
-  .add-quest-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-  .add-quest-input { flex: 1; min-width: 200px; background: var(--panel2); border: 1px solid var(--border); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 14px; padding: 10px 14px; outline: none; transition: border-color 0.2s; }
-  .add-quest-input:focus { border-color: var(--blue); }
-  .add-quest-btn { background: linear-gradient(135deg,var(--blue2),var(--blue)); border: none; color: #fff; font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 2px; padding: 10px 20px; cursor: pointer; clip-path: polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%); transition: all 0.2s; }
-  .add-quest-btn:hover { box-shadow: var(--glow); }
+/* ── CARDS / GRID ── */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.stat-card{background:var(--ink2);border:1px solid var(--smoke);padding:20px}
+.stat-card-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--ash);margin-bottom:8px}
+.stat-card-num{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--cream);line-height:1}
+.stat-card-num.ok{color:var(--cream)}
+.stat-card-num.warn{color:var(--gold)}
+.stat-card-num.bad{color:var(--red)}
+.stat-card-sub{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--ash);margin-top:6px}
+.panel{background:var(--ink2);border:1px solid var(--smoke);padding:24px;margin-bottom:20px}
+.panel-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ash);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.panel-title span{color:var(--cream)}
 
-  /* SKILL TREE */
-  .skill-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 12px; }
-  .skill-card { background: var(--panel2); border: 1px solid var(--border); padding: 18px; text-align: center; cursor: pointer; transition: all 0.25s; clip-path: polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px); }
-  .skill-card:hover { border-color: var(--purple2); box-shadow: var(--purple-glow); transform: translateY(-3px); }
-  .skill-card.active { border-color: var(--purple2); background: rgba(124,58,237,0.1); box-shadow: var(--purple-glow); }
-  .skill-icon { font-size: 32px; margin-bottom: 8px; }
-  .skill-name { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--purple2); letter-spacing: 2px; margin-bottom: 4px; }
-  .skill-desc { font-size: 12px; color: var(--text2); line-height: 1.4; }
-  .skill-lv { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text2); margin-top: 8px; }
-  .skill-lv-bar { height: 3px; background: rgba(255,255,255,0.05); margin-top: 4px; }
-  .skill-lv-fill { height: 100%; background: linear-gradient(90deg,var(--purple),var(--purple2)); transition: width 0.8s; }
+/* ── PROGRESS BAR ── */
+.prog-wrap{margin-bottom:16px}
+.prog-header{display:flex;justify-content:space-between;margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.prog-label{color:var(--ash)}
+.prog-pct{color:var(--cream)}
+.prog-bg{height:3px;background:var(--smoke);width:100%}
+.prog-fill{height:3px;background:var(--red);transition:width .6s ease}
+.prog-fill.gold{background:var(--gold)}
+.prog-fill.green{background:#3B6D11}
 
-  /* DUNGEONS */
-  .dungeon-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 12px; }
-  .dungeon-card { background: var(--panel2); border: 1px solid var(--border); padding: 20px; clip-path: polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%); transition: all 0.25s; cursor: pointer; }
-  .dungeon-card:hover { border-color: var(--gold); box-shadow: var(--gold-glow); transform: scale(1.02); }
-  .dungeon-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-  .dungeon-name { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--gold2); letter-spacing: 1px; }
-  .dungeon-rank { font-family: 'Share Tech Mono', monospace; font-size: 12px; }
-  .dungeon-rank.s { color: var(--purple2); }
-  .dungeon-rank.a { color: var(--red); }
-  .dungeon-rank.b { color: var(--gold); }
-  .dungeon-desc { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 10px; }
-  .dungeon-progress { height: 4px; background: rgba(255,255,255,0.05); }
-  .dungeon-prog-fill { height: 100%; background: linear-gradient(90deg,var(--gold2),var(--gold)); transition: width 0.8s; }
-  .dungeon-meta { display: flex; justify-content: space-between; margin-top: 6px; }
-  .dungeon-meta span { font-size: 11px; color: var(--text2); font-family: 'Share Tech Mono', monospace; }
+/* ── TABLES / LISTS ── */
+.list-item{display:flex;align-items:flex-start;gap:16px;padding:16px 0;border-bottom:1px solid var(--ink3)}
+.list-item:last-child{border-bottom:none}
+.li-check{width:20px;height:20px;border:1px solid var(--smoke);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:2px}
+.li-check:hover{border-color:var(--red)}
+.li-check.done{background:var(--red);border-color:var(--red)}
+.li-check.done::after{content:'';display:block;width:10px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px)}
+.li-body{flex:1}
+.li-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--cream)}
+.li-title.done-text{text-decoration:line-through;color:var(--ash);opacity:.5}
+.li-meta{font-size:12px;color:var(--ash);font-weight:300;margin-top:2px}
+.li-right{text-align:right;flex-shrink:0}
+.badge{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 8px}
+.badge-red{background:var(--red);color:#fff}
+.badge-gold{border:1px solid var(--gold-muted);color:var(--gold)}
+.badge-dim{border:1px solid var(--smoke);color:var(--ash)}
+.badge-green{background:#27500A;color:#97C459}
+.deadline-red{color:var(--red);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px}
+.deadline-ok{color:var(--ash);font-family:'Barlow Condensed',sans-serif;font-size:12px}
 
-  /* LOG */
-  .log-area { background: var(--panel2); border: 1px solid var(--border); padding: 16px; font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--text2); line-height: 1.8; max-height: 180px; overflow-y: auto; clip-path: polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%); }
-  .log-area::-webkit-scrollbar { width: 4px; }
-  .log-area::-webkit-scrollbar-thumb { background: var(--blue2); }
-  .log-entry { margin-bottom: 4px; }
-  .log-entry .ts { color: var(--blue); margin-right: 8px; }
-  .msg-good { color: var(--green); }
-  .msg-warn { color: var(--gold); }
-  .msg-alert { color: var(--red); }
+/* ── FORMS ── */
+.form-row{margin-bottom:16px}
+.form-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--ash);margin-bottom:6px;display:block}
+.form-input{width:100%;background:var(--ink3);border:1px solid var(--smoke);color:var(--cream);padding:10px 14px;font-size:14px;font-weight:300;outline:none;transition:border .15s}
+.form-input:focus{border-color:var(--red)}
+.form-select{width:100%;background:var(--ink3);border:1px solid var(--smoke);color:var(--cream);padding:10px 14px;font-size:14px;font-weight:300;outline:none;cursor:pointer;appearance:none;transition:border .15s}
+.form-select:focus{border-color:var(--red)}
+.form-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 
-  /* MOTIVATION */
-  .motivation-box { background: var(--panel); border: 1px solid rgba(168,85,247,0.3); padding: 20px 24px; text-align: center; position: relative; overflow: hidden; clip-path: polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px)); }
-  .motivation-box::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%,rgba(124,58,237,0.08) 0%,transparent 70%); pointer-events: none; }
-  .motivation-quote { font-size: clamp(15px,3vw,19px); font-weight: 600; color: var(--text); line-height: 1.6; font-style: italic; }
-  .motivation-source { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--purple2); margin-top: 10px; letter-spacing: 2px; }
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--ink2);border:1px solid var(--smoke);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:32px}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--cream);margin-bottom:24px}
+.modal-actions{display:flex;gap:12px;margin-top:24px;justify-content:flex-end}
 
-  /* NOTIF */
-  .notif { position: fixed; top: 20px; right: 20px; background: var(--panel); border-left: 3px solid var(--blue); box-shadow: var(--glow); padding: 14px 20px; font-size: 13px; z-index: 1000; opacity: 0; transform: translateX(60px); transition: all 0.3s; max-width: 300px; clip-path: polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%); }
-  .notif.show { opacity: 1; transform: translateX(0); }
-  .notif.gold { border-left-color: var(--gold); }
-  .notif-title { font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 2px; color: var(--blue); margin-bottom: 4px; }
-  .notif.gold .notif-title { color: var(--gold2); }
+/* ── ALERT BAR ── */
+.alert-bar{background:var(--red);padding:12px 24px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;color:#fff;margin-bottom:20px;display:none}
+.alert-bar.visible{display:block}
 
-  /* TABS */
-  .tab-nav { display: flex; gap: 0; margin: 32px 0 0; border-bottom: 1px solid var(--border2); }
-  .tab-btn {
-    font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 2px;
-    padding: 12px 22px; background: transparent; border: 1px solid transparent;
-    border-bottom: none; color: var(--text2); cursor: pointer; transition: all 0.2s;
-    clip-path: polygon(8px 0,100% 0,100% 100%,0 100%);
-    position: relative; top: 1px;
-  }
-  .tab-btn:hover { color: var(--blue); }
-  .tab-btn.active { background: var(--panel); border-color: var(--border2); color: var(--blue); box-shadow: var(--glow); }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
+/* ── FLETCHER MSG ── */
+.fletcher-msg{background:var(--ink2);border-left:3px solid var(--red);padding:16px 20px;margin:16px 0;font-size:13px;color:var(--ash);font-weight:300;font-style:italic;line-height:1.7}
+.fletcher-msg::before{content:'"';color:var(--red);font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:0;vertical-align:-12px;margin-right:4px}
 
-  /* 200Q PANEL */
-  .q200-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-  .q200-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  .q200-count {
-    font-family: 'Orbitron', monospace; font-size: 36px; font-weight: 900;
-    color: var(--gold2); text-shadow: var(--gold-glow);
-  }
-  .q200-label { font-size: 12px; color: var(--text2); letter-spacing: 2px; }
-  .q200-bar-wrap { flex: 1; min-width: 200px; height: 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); position: relative; overflow: hidden; }
-  .q200-bar { height: 100%; background: linear-gradient(90deg,var(--gold2),var(--gold),var(--purple2)); transition: width 0.4s ease; }
-  .q200-bar::after { content:''; position:absolute;top:0;right:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3));animation:shimmer 1.5s ease-in-out infinite; }
-  .q200-pct { font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--gold); white-space:nowrap; }
-  .q200-actions { display:flex; gap:8px; flex-wrap:wrap; }
-  .q200-btn { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:1px; padding:8px 16px; border:1px solid; background:transparent; cursor:pointer; transition:all 0.2s; clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%); }
-  .q200-btn.reset { border-color:rgba(255,58,58,0.4); color:var(--red); }
-  .q200-btn.reset:hover { background:rgba(255,58,58,0.1); box-shadow:0 0 14px rgba(255,58,58,0.3); }
-  .q200-btn.undo { border-color:var(--border2); color:var(--text2); }
-  .q200-btn.undo:hover { border-color:var(--blue); color:var(--blue); }
+/* ── DAY GRID (academia) ── */
+.day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:20px}
+.day-cell{background:var(--ink3);border:1px solid var(--smoke);padding:12px 6px;text-align:center;cursor:pointer;transition:all .15s}
+.day-cell.scheduled{border-color:var(--smoke)}
+.day-cell.confirmed{background:var(--smoke);border-color:var(--ash)}
+.day-cell.missed{background:var(--red-muted);border-color:var(--red)}
+.day-cell.not-scheduled{opacity:.25;cursor:default}
+.day-cell-name{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ash)}
+.day-cell.confirmed .day-cell-name,.day-cell.confirmed .day-cell-status{color:var(--cream)}
+.day-cell.missed .day-cell-name,.day-cell.missed .day-cell-status{color:#fff}
+.day-cell-status{font-family:'Bebas Neue',sans-serif;font-size:18px;margin-top:4px;color:var(--smoke)}
 
-  .q200-grid {
-    display: grid;
-    grid-template-columns: repeat(20, 1fr);
-    gap: 6px;
-  }
-  .q-check {
-    aspect-ratio: 1;
-    border: 1px solid rgba(0,180,255,0.2);
-    background: var(--panel2);
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px; color: transparent;
-    clip-path: polygon(0 0,calc(100% - 4px) 0,100% 4px,100% 100%,4px 100%,0 calc(100% - 4px));
-    position: relative;
-  }
-  .q-check:hover { border-color: var(--blue); transform: scale(1.15); z-index:2; box-shadow: var(--glow); }
-  .q-check.checked {
-    background: linear-gradient(135deg, var(--blue2), var(--blue));
-    border-color: var(--blue);
-    color: #fff;
-    box-shadow: var(--glow);
-  }
-  .q-check.checked::after { content:'✓'; font-size:9px; position:absolute; }
-  .q-check.milestone {
-    border-color: var(--gold) !important;
-  }
-  .q-check.milestone.checked {
-    background: linear-gradient(135deg, var(--gold), var(--gold2)) !important;
-    border-color: var(--gold2) !important;
-    box-shadow: var(--gold-glow) !important;
-  }
-  .q200-milestones { display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
-  .milestone-tag {
-    font-family:'Share Tech Mono',monospace; font-size:11px; padding:4px 12px;
-    border:1px solid; clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);
-    transition: all 0.3s;
-  }
-  .milestone-tag.locked { border-color:var(--border); color:var(--text2); }
-  .milestone-tag.unlocked { border-color:var(--gold); color:var(--gold2); box-shadow:var(--gold-glow); animation: milestone-flash 0.5s ease; }
-  @keyframes milestone-flash { 0%,100%{opacity:1}50%{opacity:0.4} }
+/* ── SIMULADO HISTORY ── */
+.sim-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 80px;gap:12px;padding:14px 0;border-bottom:1px solid var(--ink3);align-items:center;font-size:13px}
+.sim-row:last-child{border-bottom:none}
+.sim-row-head{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ash)}
+.sim-score{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--cream)}
+.sim-delta-pos{color:#639922;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700}
+.sim-delta-neg{color:var(--red);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700}
 
-  /* ANIM */
-  .fade-in { opacity: 0; transform: translateY(20px); animation: appear 0.6s forwards ease-out; }
-  .fade-in:nth-child(1){animation-delay:.1s}.fade-in:nth-child(2){animation-delay:.2s}.fade-in:nth-child(3){animation-delay:.3s}.fade-in:nth-child(4){animation-delay:.4s}.fade-in:nth-child(5){animation-delay:.5s}.fade-in:nth-child(6){animation-delay:.6s}.fade-in:nth-child(7){animation-delay:.7s}.fade-in:nth-child(8){animation-delay:.8s}
-  @keyframes appear { to { opacity:1; transform:translateY(0); } }
+/* ── REDAÇÃO CARDS ── */
+.redacao-item{background:var(--ink3);border:1px solid var(--smoke);padding:20px;margin-bottom:12px}
+.redacao-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.redacao-tema{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--cream)}
+.redacao-nota{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--cream);line-height:1}
+.redacao-nota.low{color:var(--red)}
+.redacao-nota.mid{color:var(--gold)}
+.redacao-nota.high{color:var(--cream)}
+.comp-bars{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
+.comp-bar-wrap{text-align:center}
+.comp-bar-bg{height:48px;background:var(--smoke);display:flex;align-items:flex-end}
+.comp-bar-fill{width:100%;background:var(--red);transition:height .4s}
+.comp-bar-label{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ash);margin-top:4px}
+.comp-bar-val{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--cream)}
 
-  @media(max-width:600px){.card-top{flex-direction:column;align-items:flex-start}.stats-grid{grid-template-columns:repeat(2,1fr)}}
+/* ── COUNTDOWN ── */
+.countdown-bar{background:var(--red);padding:10px 40px;display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.countdown-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.countdown-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#fff;letter-spacing:2px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:var(--ink2);border:1px solid var(--smoke);border-left:3px solid var(--red);padding:14px 24px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;color:var(--cream);max-width:480px;z-index:999;opacity:0;transition:opacity .3s;text-align:center}
+#toast.show{opacity:1}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--ink)}
+::-webkit-scrollbar-thumb{background:var(--smoke)}
 </style>
 </head>
 <body>
-<div id="particles"></div>
 
-<div class="alert-overlay" id="overlay" onclick="closeAlert()"></div>
-<div class="alert-popup" id="alertPopup">
-  <span class="alert-icon">⚠️</span>
-  <div class="alert-title">SISTEMA ATIVADO</div>
-  <p class="alert-text">
-    O sistema detectou um jogador com potencial oculto.<br><br>
-    Missão designada: <span>Medicina · USP / UFMG · 2025</span><br><br>
-    O cronômetro foi iniciado. Não há mais como voltar atrás.
-  </p>
-  <button class="alert-btn" onclick="closeAlert()">ACEITAR DESTINO</button>
-</div>
+<!-- ════════════════════════════════ ONBOARDING ════════════════════════════════ -->
+<div id="onboarding">
+  <div class="ob-inner">
+    <div class="ob-progress" id="ob-progress"></div>
 
-<div class="wrapper">
-  <header class="fade-in">
-    <div class="system-badge">▸ SISTEMA DE DESPERTAR ◂</div>
-    <h1>PROTOCOLO<br>MEDICINA</h1>
-    <p class="subtitle">Academic Comeback · 2025 · S-Rank Target</p>
-  </header>
+    <!-- Step 0: Warning -->
+    <div class="ob-step active" data-step="0">
+      <div class="ob-eyebrow">FletcherMed · Sistema de Estudos</div>
+      <div class="ob-title">Antes de continuar.</div>
+      <div class="ob-body">
+        Esse app <strong>não vai te tratar bem</strong>. Vai te tratar com a verdade.<br><br>
+        Sem estrelinhas. Sem parabéns por fazer o mínimo. Sem dias de folga não planejados.<br><br>
+        Se você não aguenta isso, <strong>fecha agora</strong>.
+      </div>
+      <button class="btn-primary" onclick="obNext()">Eu aguento. Continuar.</button>
+    </div>
 
-  <div class="player-card fade-in">
-    <div class="card-top">
-      <div class="rank-badge" id="rankBadge">E</div>
-      <div class="player-info">
-        <div class="player-name">
-          <input type="text" id="playerName" value="HUNTER" placeholder="SEU NOME" maxlength="20" onclick="this.select()" />
-        </div>
-        <div class="player-class">✦ CLASSE: MÉDICO EM FORMAÇÃO · MODO: ACADEMIC COMEBACK ✦</div>
-        <div class="level-row" style="margin-top:12px">
-          <span class="level-label">NV <span id="levelNum">1</span></span>
-          <div class="xp-bar-wrap"><div class="xp-bar" id="xpBar" style="width:0%"></div></div>
-          <span class="xp-text"><span id="xpCurrent">0</span> / <span id="xpMax">100</span> XP</span>
-        </div>
+    <!-- Step 1: Name -->
+    <div class="ob-step" data-step="1">
+      <div class="ob-eyebrow">Identificação</div>
+      <div class="ob-title">Seu nome.</div>
+      <div class="ob-question">Como o sistema vai te chamar?</div>
+      <input class="ob-input" id="ob-name" type="text" placeholder="Seu nome" maxlength="30">
+      <div class="ob-warn" id="warn-name">Nome obrigatório.</div>
+      <div>
+        <button class="btn-ghost" onclick="obBack()">Voltar</button>
+        <button class="btn-primary" onclick="obNext()">Continuar</button>
       </div>
     </div>
-    <div class="stats-grid" id="statsGrid"></div>
+
+    <!-- Step 2: Banca principal -->
+    <div class="ob-step" data-step="2">
+      <div class="ob-eyebrow">Objetivo</div>
+      <div class="ob-title">Qual é a sua prova principal?</div>
+      <div class="ob-options" id="ob-banca">
+        <div class="ob-opt" onclick="selectOpt(this,'ob-banca')">ENEM</div>
+        <div class="ob-opt" onclick="selectOpt(this,'ob-banca')">FUVEST</div>
+        <div class="ob-opt" onclick="selectOpt(this,'ob-banca')">UNICAMP</div>
+        <div class="ob-opt" onclick="selectOpt(this,'ob-banca')">UERJ</div>
+        <div class="ob-opt" onclick="selectOpt(this,'ob-banca')">Todas</div>
+      </div>
+      <div class="ob-warn" id="warn-banca">Selecione uma opção.</div>
+      <div>
+        <button class="btn-ghost" onclick="obBack()">Voltar</button>
+        <button class="btn-primary" onclick="obNext()">Continuar</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Data da prova -->
+    <div class="ob-step" data-step="3">
+      <div class="ob-eyebrow">Contagem regressiva</div>
+      <div class="ob-title">Data da sua prova.</div>
+      <div class="ob-question">Essa data vai aparecer em todo o app. Ela é real.</div>
+      <input class="ob-input" id="ob-date" type="date">
+      <div class="ob-warn" id="warn-date">Data obrigatória.</div>
+      <div>
+        <button class="btn-ghost" onclick="obBack()">Voltar</button>
+        <button class="btn-primary" onclick="obNext()">Continuar</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Fraqueza -->
+    <div class="ob-step" data-step="4">
+      <div class="ob-eyebrow">Diagnóstico</div>
+      <div class="ob-title">Sua maior fraqueza.</div>
+      <div class="ob-question">Qual disciplina você mais teme? O sistema vai atacar ela primeiro.</div>
+      <div class="ob-options" id="ob-fraqueza">
+        <div class="ob-opt" onclick="selectOpt(this,'ob-fraqueza')">Biologia</div>
+        <div class="ob-opt" onclick="selectOpt(this,'ob-fraqueza')">Química</div>
+        <div class="ob-opt" onclick="selectOpt(this,'ob-fraqueza')">Física</div>
+        <div class="ob-opt" onclick="selectOpt(this,'ob-fraqueza')">Matemática</div>
+        <div class="ob-opt" onclick="selectOpt(this,'ob-fraqueza')">Português</div>
+        <div class="ob-opt" onclick="selectOpt(this,'ob-fraqueza')">Humanas</div>
+      </div>
+      <div class="ob-warn" id="warn-fraqueza">Selecione uma opção.</div>
+      <div>
+        <button class="btn-ghost" onclick="obBack()">Voltar</button>
+        <button class="btn-primary" onclick="obNext()">Continuar</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Dias academia -->
+    <div class="ob-step" data-step="5">
+      <div class="ob-eyebrow">Disciplina física</div>
+      <div class="ob-title">Dias de academia.</div>
+      <div class="ob-question">Selecione os dias. Você será cobrado por cada um.</div>
+      <div class="ob-days-grid" id="ob-days">
+        <div class="ob-day" onclick="toggleDay(this)" data-day="0">SEG</div>
+        <div class="ob-day" onclick="toggleDay(this)" data-day="1">TER</div>
+        <div class="ob-day" onclick="toggleDay(this)" data-day="2">QUA</div>
+        <div class="ob-day" onclick="toggleDay(this)" data-day="3">QUI</div>
+        <div class="ob-day" onclick="toggleDay(this)" data-day="4">SEX</div>
+        <div class="ob-day" onclick="toggleDay(this)" data-day="5">SÁB</div>
+        <div class="ob-day" onclick="toggleDay(this)" data-day="6">DOM</div>
+      </div>
+      <div class="ob-warn" id="warn-days">Selecione ao menos 1 dia.</div>
+      <div>
+        <button class="btn-ghost" onclick="obBack()">Voltar</button>
+        <button class="btn-primary" onclick="obFinish()">Começar agora</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ APP ════════════════════════════════ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-text">FLETCHER<span>MED</span></div>
+      <div class="sb-logo-sub" id="sb-username">Carregando...</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-item active" onclick="goPage('dashboard')">
+        <div class="sb-item-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+        <div class="sb-item-label">Dashboard</div>
+      </div>
+      <div class="sb-item" onclick="goPage('tarefas')">
+        <div class="sb-item-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <div class="sb-item-label">Tarefas</div>
+      </div>
+      <div class="sb-item" onclick="goPage('questoes')">
+        <div class="sb-item-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div class="sb-item-label">Questões</div>
+      </div>
+      <div class="sb-item" onclick="goPage('redacao')">
+        <div class="sb-item-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+        <div class="sb-item-label">Redação</div>
+      </div>
+      <div class="sb-item" onclick="goPage('simulados')">
+        <div class="sb-item-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+        <div class="sb-item-label">Simulados</div>
+      </div>
+      <div class="sb-item" onclick="goPage('academia')">
+        <div class="sb-item-icon"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+        <div class="sb-item-label">Academia</div>
+      </div>
+    </nav>
+    <div class="sb-streak">
+      <div class="sb-streak-label">Sequência atual</div>
+      <div class="sb-streak-num" id="sb-streak-num">0<span>d</span></div>
+      <div class="sb-streak-sub">dias consecutivos</div>
+    </div>
   </div>
 
-  <div class="countdown-panel fade-in">
-    <div class="countdown-label">⏳ TEMPO RESTANTE PARA O PORTAL — ENEM / FUVEST</div>
-    <div class="countdown-digits">
-      <div class="cd-unit"><span class="cd-num" id="cd-d">000</span><div class="cd-label">DIAS</div></div>
-      <div class="cd-sep">:</div>
-      <div class="cd-unit"><span class="cd-num" id="cd-h">00</span><div class="cd-label">HRS</div></div>
-      <div class="cd-sep">:</div>
-      <div class="cd-unit"><span class="cd-num" id="cd-m">00</span><div class="cd-label">MIN</div></div>
-      <div class="cd-sep">:</div>
-      <div class="cd-unit"><span class="cd-num" id="cd-s">00</span><div class="cd-label">SEG</div></div>
-    </div>
-    <div class="target-row">
-      <div class="target-badge usp">◈ USP — MEDICINA</div>
-      <div class="target-badge ufmg">◈ UFMG — MEDICINA</div>
-    </div>
-  </div>
+  <!-- MAIN -->
+  <div id="main">
 
-  <!-- TABS -->
-  <div class="tab-nav fade-in">
-    <button class="tab-btn active" onclick="switchTab('main',this)">⚔️ &nbsp;MISSÕES</button>
-    <button class="tab-btn" onclick="switchTab('q200',this)">🎯 &nbsp;200 QUESTÕES</button>
-    <button class="tab-btn" onclick="switchTab('skills',this)">✨ &nbsp;HABILIDADES</button>
-    <button class="tab-btn" onclick="switchTab('log',this)">📜 &nbsp;LOG</button>
-  </div>
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div id="countdown-bar" class="countdown-bar">
+        <div class="countdown-label">Dias até a prova</div>
+        <div class="countdown-num" id="days-left">—</div>
+        <div class="countdown-label" id="prova-label">—</div>
+      </div>
 
-  <!-- TAB: MAIN -->
-  <div class="tab-panel active" id="tab-main">
+      <div id="alert-bar" class="alert-bar"></div>
 
-  <div class="section fade-in">
-    <div class="section-header">
-      <span class="section-icon">⚔️</span>
-      <span class="section-title">Missões Diárias</span>
-      <span class="section-badge" id="questCounter">0/0 COMPLETAS</span>
-    </div>
-    <div class="quest-list" id="questList"></div>
-    <div class="add-quest-row">
-      <input type="text" class="add-quest-input" id="newQuestInput" placeholder="Nova missão personalizada..." maxlength="60" />
-      <button class="add-quest-btn" onclick="addQuest()">+ MISSÃO</button>
-    </div>
-  </div>
+      <div class="page-header">
+        <div class="page-eyebrow" id="dash-date">—</div>
+        <div class="page-title" id="dash-greeting">Bom dia.</div>
+        <div class="page-sub">Abaixo estão os seus números. Não há interpretação gentil.</div>
+      </div>
 
-  <div class="section fade-in">
-    <div class="section-header">
-      <span class="section-icon">🏛️</span>
-      <span class="section-title">Dungeons — Matérias</span>
-      <span class="section-badge">CLIQUE PARA TREINAR</span>
-    </div>
-    <div class="dungeon-grid" id="dungeonGrid"></div>
-  </div>
+      <div class="grid4" id="dash-stats"></div>
 
-  </div><!-- /tab-main -->
-
-  <!-- TAB: 200 QUESTÕES -->
-  <div class="tab-panel" id="tab-q200">
-  <div class="section fade-in">
-    <div class="section-header">
-      <span class="section-icon">🎯</span>
-      <span class="section-title">Meta Diária — 200 Questões</span>
-      <span class="section-badge" id="q200badge">0 / 200</span>
-    </div>
-
-    <div class="q200-header">
-      <div class="q200-meta">
-        <div>
-          <div class="q200-count" id="q200count">0</div>
-          <div class="q200-label">QUESTÕES HOJE</div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-title">Metas da semana <span id="dash-week-pct">0%</span></div>
+          <div id="dash-week-bars"></div>
         </div>
-        <div style="flex:1;min-width:180px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-            <span style="font-size:11px;color:var(--text2);font-family:'Share Tech Mono',monospace">PROGRESSO</span>
-            <span class="q200-pct" id="q200pct">0%</span>
+        <div class="panel">
+          <div class="panel-title">Próximas tarefas urgentes</div>
+          <div id="dash-tasks-preview"></div>
+        </div>
+      </div>
+
+      <div id="fletcher-daily" class="fletcher-msg"></div>
+    </div>
+
+    <!-- ── TAREFAS ── -->
+    <div class="page" id="page-tarefas">
+      <div class="page-header">
+        <div class="page-eyebrow">Módulo 01</div>
+        <div class="page-title">Tarefas do Professor</div>
+        <div class="page-sub">Tarefas vencidas não somem. Ficam aqui como registro de falha.</div>
+      </div>
+      <button class="btn-primary" style="margin-bottom:24px" onclick="openModal('modal-tarefa')">+ Nova tarefa</button>
+      <div class="panel">
+        <div class="panel-title">Pendentes <span id="tarefas-count">0</span></div>
+        <div id="tarefas-list"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Concluídas <span id="tarefas-done-count">0</span></div>
+        <div id="tarefas-done-list"></div>
+      </div>
+    </div>
+
+    <!-- ── QUESTÕES ── -->
+    <div class="page" id="page-questoes">
+      <div class="page-header">
+        <div class="page-eyebrow">Módulo 02</div>
+        <div class="page-title">Questões Diárias</div>
+        <div class="page-sub">Meta: 40 questões/dia. Abaixo de 30, o sistema te avisa.</div>
+      </div>
+
+      <div id="q-alert" class="alert-bar"></div>
+
+      <div class="grid4" id="q-stats"></div>
+
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-title">Registrar sessão de hoje</div>
+          <div class="form-row">
+            <label class="form-label">Disciplina</label>
+            <select class="form-select" id="q-disc">
+              <option value="Biologia">Biologia</option>
+              <option value="Química">Química</option>
+              <option value="Física">Física</option>
+              <option value="Matemática">Matemática</option>
+              <option value="Português">Português</option>
+              <option value="Humanas">Humanas</option>
+            </select>
           </div>
-          <div class="q200-bar-wrap"><div class="q200-bar" id="q200bar" style="width:0%"></div></div>
+          <div class="form-grid2">
+            <div class="form-row">
+              <label class="form-label">Questões feitas</label>
+              <input class="form-input" type="number" id="q-total" min="1" max="200" placeholder="Ex: 40">
+            </div>
+            <div class="form-row">
+              <label class="form-label">Acertos</label>
+              <input class="form-input" type="number" id="q-acertos" min="0" max="200" placeholder="Ex: 32">
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="form-label">Fonte</label>
+            <select class="form-select" id="q-fonte">
+              <option>ENEM (passado)</option>
+              <option>FUVEST (passado)</option>
+              <option>UNICAMP (passado)</option>
+              <option>UERJ (passado)</option>
+              <option>Livro / apostila</option>
+              <option>Plataforma externa</option>
+            </select>
+          </div>
+          <button class="btn-primary" style="width:100%" onclick="registrarQuestoes()">Registrar sessão</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Proficiência por disciplina</div>
+          <div id="q-proficiencia"></div>
         </div>
       </div>
-      <div class="q200-actions">
-        <button class="q200-btn undo" onclick="undoQ()">↩ DESFAZER</button>
-        <button class="q200-btn reset" onclick="resetQ200()">⟳ RESETAR DIA</button>
+
+      <div class="panel">
+        <div class="panel-title">Histórico de sessões</div>
+        <div id="q-historico"></div>
       </div>
     </div>
 
-    <div class="q200-milestones" id="q200milestones"></div>
+    <!-- ── REDAÇÃO ── -->
+    <div class="page" id="page-redacao">
+      <div class="page-header">
+        <div class="page-eyebrow">Módulo 03</div>
+        <div class="page-title">Redações Semanais</div>
+        <div class="page-sub">Meta: 3 por semana. Nota abaixo de 700 = escreva de novo.</div>
+      </div>
 
-    <div class="q200-grid" id="q200grid"></div>
+      <div class="grid3" id="red-stats"></div>
 
-    <div style="margin-top:14px;font-size:12px;color:var(--text2);font-family:'Share Tech Mono',monospace;text-align:center">
-      Clique em cada quadrado para marcar uma questão resolvida · Marcos em <span style="color:var(--gold)">ouro</span> a cada 25
+      <div class="panel">
+        <div class="panel-title">Registrar redação</div>
+        <div class="form-grid2">
+          <div class="form-row">
+            <label class="form-label">Tipo</label>
+            <select class="form-select" id="red-tipo">
+              <option>Dissertativa ENEM</option>
+              <option>Discursiva FUVEST</option>
+              <option>Discursiva UNICAMP</option>
+              <option>Discursiva UERJ</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label">Data</label>
+            <input class="form-input" type="date" id="red-data">
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Tema</label>
+          <input class="form-input" type="text" id="red-tema" placeholder="Ex: Violência contra povos indígenas no Brasil">
+        </div>
+        <div class="form-grid3" id="red-comps-wrap" style="display:none">
+          <div class="form-row"><label class="form-label">C1 — Língua formal</label><input class="form-input" type="number" id="rc1" min="0" max="200" step="40" placeholder="0–200"></div>
+          <div class="form-row"><label class="form-label">C2 — Tema/gênero</label><input class="form-input" type="number" id="rc2" min="0" max="200" step="40" placeholder="0–200"></div>
+          <div class="form-row"><label class="form-label">C3 — Argumentação</label><input class="form-input" type="number" id="rc3" min="0" max="200" step="40" placeholder="0–200"></div>
+          <div class="form-row"><label class="form-label">C4 — Coesão</label><input class="form-input" type="number" id="rc4" min="0" max="200" step="40" placeholder="0–200"></div>
+          <div class="form-row"><label class="form-label">C5 — Intervenção</label><input class="form-input" type="number" id="rc5" min="0" max="200" step="40" placeholder="0–200"></div>
+        </div>
+        <div class="form-row" id="red-nota-wrap" style="display:none">
+          <label class="form-label">Nota final (0–10)</label>
+          <input class="form-input" type="number" id="red-nota-simple" min="0" max="10" placeholder="0–10">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Observação da correção</label>
+          <textarea class="form-input" id="red-obs" rows="2" placeholder="Ponto fraco principal, o que refazer..."></textarea>
+        </div>
+        <button class="btn-primary" onclick="registrarRedacao()">Registrar redação</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Histórico de redações</div>
+        <div id="red-historico"></div>
+      </div>
     </div>
-  </div>
-  </div><!-- /tab-q200 -->
 
-  <!-- TAB: HABILIDADES -->
-  <div class="tab-panel" id="tab-skills">
-  <div class="section fade-in">
-    <div class="section-header">
-      <span class="section-icon">✨</span>
-      <span class="section-title">Árvore de Habilidades</span>
-      <span class="section-badge">CLIQUE PARA ATIVAR</span>
+    <!-- ── SIMULADOS ── -->
+    <div class="page" id="page-simulados">
+      <div class="page-header">
+        <div class="page-eyebrow">Módulo 04</div>
+        <div class="page-title">Simulados</div>
+        <div class="page-sub">1 temático/semana · 1 completo/mês. Sem exceções.</div>
+      </div>
+
+      <div class="grid3" id="sim-stats"></div>
+
+      <button class="btn-primary" style="margin-bottom:24px" onclick="openModal('modal-simulado')">+ Registrar simulado</button>
+
+      <div class="panel">
+        <div class="panel-title">Histórico de simulados</div>
+        <div class="sim-row" style="margin-bottom:8px">
+          <div class="sim-row-head">Data</div>
+          <div class="sim-row-head">Banca / Tipo</div>
+          <div class="sim-row-head">Questões</div>
+          <div class="sim-row-head">Acerto</div>
+          <div class="sim-row-head">Delta</div>
+        </div>
+        <div id="sim-historico"></div>
+      </div>
     </div>
-    <div class="skill-grid" id="skillGrid"></div>
-  </div>
-  </div><!-- /tab-skills -->
 
-  <!-- TAB: LOG -->
-  <div class="tab-panel" id="tab-log">
-  <div class="section fade-in">
-    <div class="section-header">
-      <span class="section-icon">📜</span>
-      <span class="section-title">Registro de Batalha</span>
+    <!-- ── ACADEMIA ── -->
+    <div class="page" id="page-academia">
+      <div class="page-header">
+        <div class="page-eyebrow">Módulo 05</div>
+        <div class="page-title">Academia</div>
+        <div class="page-sub">Disciplina física e intelectual são a mesma coisa.</div>
+      </div>
+
+      <div class="grid3" id="acad-stats"></div>
+
+      <div class="panel">
+        <div class="panel-title">Esta semana</div>
+        <div class="day-grid" id="acad-week"></div>
+        <div id="acad-msg" class="fletcher-msg" style="margin-top:8px"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Aderência mensal</div>
+        <div id="acad-monthly"></div>
+      </div>
     </div>
-    <div class="log-area" id="logArea" style="max-height:400px"></div>
-  </div>
-  </div><!-- /tab-log -->
 
-  <div class="motivation-box fade-in">
-    <div class="motivation-quote" id="motivQuote"></div>
-    <div class="motivation-source" id="motivSource"></div>
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ── MODAIS ── -->
+<div class="modal-overlay" id="modal-tarefa">
+  <div class="modal">
+    <div class="modal-title">Nova Tarefa</div>
+    <div class="form-row">
+      <label class="form-label">Nome da tarefa</label>
+      <input class="form-input" type="text" id="t-nome" placeholder="Ex: Resolver lista de Biologia celular" maxlength="80">
+    </div>
+    <div class="form-grid2">
+      <div class="form-row">
+        <label class="form-label">Disciplina</label>
+        <select class="form-select" id="t-disc">
+          <option>Biologia</option><option>Química</option><option>Física</option>
+          <option>Matemática</option><option>Português</option><option>Humanas</option>
+          <option>Redação</option><option>Outro</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Prioridade</label>
+        <select class="form-select" id="t-prio">
+          <option value="CRÍTICA">CRÍTICA</option>
+          <option value="ALTA">ALTA</option>
+          <option value="NORMAL" selected>NORMAL</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid2">
+      <div class="form-row">
+        <label class="form-label">Prazo</label>
+        <input class="form-input" type="datetime-local" id="t-prazo">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Estimativa (min)</label>
+        <input class="form-input" type="number" id="t-tempo" placeholder="Ex: 60">
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Banca</label>
+      <select class="form-select" id="t-banca">
+        <option>ENEM</option><option>FUVEST</option><option>UNICAMP</option><option>UERJ</option><option>Todas</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('modal-tarefa')">Cancelar</button>
+      <button class="btn-primary" onclick="salvarTarefa()">Salvar tarefa</button>
+    </div>
   </div>
 </div>
 
-<div class="notif" id="notif">
-  <div class="notif-title" id="notifTitle">SISTEMA</div>
-  <div id="notifMsg"></div>
+<div class="modal-overlay" id="modal-simulado">
+  <div class="modal">
+    <div class="modal-title">Registrar Simulado</div>
+    <div class="form-grid2">
+      <div class="form-row">
+        <label class="form-label">Data</label>
+        <input class="form-input" type="date" id="s-data">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Tipo</label>
+        <select class="form-select" id="s-tipo">
+          <option>Temático</option>
+          <option>Completo</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid2">
+      <div class="form-row">
+        <label class="form-label">Banca simulada</label>
+        <select class="form-select" id="s-banca">
+          <option>ENEM</option><option>FUVEST</option><option>UNICAMP</option><option>UERJ</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Total de questões</label>
+        <input class="form-input" type="number" id="s-total" placeholder="Ex: 90">
+      </div>
+    </div>
+    <div class="form-grid2">
+      <div class="form-row">
+        <label class="form-label">Acertos</label>
+        <input class="form-input" type="number" id="s-acertos" placeholder="Ex: 67">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Tempo utilizado (min)</label>
+        <input class="form-input" type="number" id="s-tempo" placeholder="Ex: 240">
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Observação</label>
+      <textarea class="form-input" id="s-obs" rows="2" placeholder="Pontos fracos, o que revisar..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('modal-simulado')">Cancelar</button>
+      <button class="btn-primary" onclick="salvarSimulado()">Registrar</button>
+    </div>
+  </div>
 </div>
+
+<div id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════════
-// 1. PARTICLES
-// ════════════════════════════════════════════════
-(function(){
-  const pc=document.getElementById('particles');
-  for(let i=0;i<40;i++){
-    const p=document.createElement('div');
-    p.className='particle';
-    p.style.cssText=`left:${Math.random()*100}%;animation-duration:${4+Math.random()*8}s;animation-delay:${Math.random()*8}s;--dx:${(Math.random()-0.5)*100}px;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px;`;
-    pc.appendChild(p);
-  }
-})();
-
-// ════════════════════════════════════════════════
-// 2. STATE
-// ════════════════════════════════════════════════
-var S = JSON.parse(localStorage.getItem('med_sys') || 'null') || {
-  name:'HUNTER', xp:0, level:1, lastReset:'',
-  stats:{Biologia:40,Química:35,Física:30,Matemática:38,Português:45,Redação:42,Humanas:37},
-  quests:[
-    {id:1,name:'Resolver 30 questões de Biologia',desc:'Fisiologia celular — FUVEST provas anteriores',xp:40,diff:'b',done:false},
-    {id:2,name:'Videoaula: Química Orgânica (2h)',desc:'Isomeria e reações — Módulo S-Rank',xp:30,diff:'b',done:false},
-    {id:3,name:'Escrever redação dissertativa',desc:'Tema ENEM — alvo mínimo 700 pontos',xp:50,diff:'a',done:false},
-    {id:4,name:'Simulado completo FUVEST/ENEM',desc:'4h sem pausas — condições reais de prova',xp:100,diff:'s',done:false},
-    {id:5,name:'Revisão de erros do dia anterior',desc:'Analisar gabarito e refazer questões',xp:20,diff:'c',done:false},
-  ],
-  dungeons:[
-    {name:'Biologia',rank:'s',desc:'Genética · Evolução · Ecologia · Fisiologia',prog:0,total:120},
-    {name:'Química',rank:'a',desc:'Orgânica · Equilíbrio · Eletroquímica',prog:0,total:100},
-    {name:'Física',rank:'a',desc:'Mecânica · Eletromagnetismo · Óptica',prog:0,total:90},
-    {name:'Matemática',rank:'a',desc:'Funções · Geometria · Probabilidade',prog:0,total:110},
-    {name:'Português',rank:'b',desc:'Interpretação · Gramática · Literatura',prog:0,total:80},
-    {name:'Redação',rank:'s',desc:'Estrutura · Repertório · Proposta de intervenção',prog:0,total:50},
-    {name:'Humanas',rank:'b',desc:'História · Geografia · Filosofia · Sociologia',prog:0,total:80},
-  ],
-  skills:[
-    {name:'FOCO ABSOLUTO',icon:'🎯',desc:'Sessões de estudo sem distrações por 2h+',lv:0,maxLv:5,active:false},
-    {name:'MEMÓRIA ÉLFICA',icon:'🧠',desc:'Revisão espaçada com flashcards diários',lv:0,maxLv:5,active:false},
-    {name:'QUESTÕES BOSS',icon:'⚡',desc:'Treinar provas dos últimos 10 anos',lv:0,maxLv:5,active:false},
-    {name:'REDAÇÃO S-RANK',icon:'✍️',desc:'Escrever 1 redação por dia mínimo',lv:0,maxLv:5,active:false},
-    {name:'MARATONA',icon:'🏃',desc:'Simulados completos toda semana',lv:0,maxLv:5,active:false},
-    {name:'MENTE DE FERRO',icon:'🛡️',desc:'Manter rotina mesmo nos dias difíceis',lv:0,maxLv:5,active:false},
-  ],
-  q200: Array(200).fill(false),
-  nextId:6, logs:[]
+// ═══════════════════ STATE ═══════════════════
+let state = {
+  nome:'',banca:'',provaDate:'',fraqueza:'',acadDays:[],streak:0,
+  lastActive:'',
+  tarefas:[],questoes:[],redacoes:[],simulados:[],acadHistory:{}
 };
 
-function save(){ localStorage.setItem('med_sys', JSON.stringify(S)); }
-
-// ════════════════════════════════════════════════
-// 3. UTILITIES — defined first so everything can call them
-// ════════════════════════════════════════════════
-function addLog(msg, type) {
-  type = type || 'good';
-  var now = new Date();
-  var ts = '[' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ']';
-  S.logs.push({ts:ts, msg:msg, type:type});
-  if(S.logs.length > 100) S.logs.shift();
+function save(){ localStorage.setItem('fletchermed',JSON.stringify(state)) }
+function load(){
+  const d=localStorage.getItem('fletchermed');
+  if(d){ state=JSON.parse(d); return true; }
+  return false;
 }
 
-var _nt;
-function showNotif(title, msg, gold) {
-  var n = document.getElementById('notif');
-  document.getElementById('notifTitle').textContent = title;
-  document.getElementById('notifMsg').textContent = msg;
-  n.className = 'notif show' + (gold ? ' gold' : '');
-  clearTimeout(_nt);
-  _nt = setTimeout(function(){ n.classList.remove('show'); }, 3200);
-}
-
-function gainXP(amt) {
-  S.xp += amt;
-  while(S.xp >= S.level * 100){
-    S.xp -= S.level * 100;
-    S.level++;
-    addLog('🌟 LEVEL UP! Nível ' + S.level + ' alcançado!', 'good');
-    showNotif('LEVEL UP!', 'Você chegou ao nível ' + S.level + '!', true);
+// ═══════════════════ ONBOARDING ═══════════════════
+let obStep=0;
+const totalSteps=6;
+function obRenderDots(){
+  const c=document.getElementById('ob-progress');
+  c.innerHTML='';
+  for(let i=0;i<totalSteps;i++){
+    const d=document.createElement('div');
+    d.className='ob-dot'+(i<obStep?' done':i===obStep?' active':'');
+    c.appendChild(d);
   }
 }
-
-// ════════════════════════════════════════════════
-// 4. RENDER
-// ════════════════════════════════════════════════
-function render() {
-  document.getElementById('playerName').value = S.name;
-  var xpNeeded = S.level * 100;
-  document.getElementById('levelNum').textContent = S.level;
-  document.getElementById('xpCurrent').textContent = S.xp;
-  document.getElementById('xpMax').textContent = xpNeeded;
-  document.getElementById('xpBar').style.width = Math.min(100, (S.xp/xpNeeded)*100) + '%';
-  var ranks = ['E','D','C','B','A','S'];
-  document.getElementById('rankBadge').textContent = ranks[Math.min(5, Math.floor((S.level-1)/5))];
-
-  document.getElementById('statsGrid').innerHTML = Object.entries(S.stats).map(function(e){
-    return '<div class="stat-item"><div class="stat-name">'+e[0]+'</div><div class="stat-val">'+e[1]+'</div><div class="stat-bar"><div class="stat-fill" style="width:'+e[1]+'%"></div></div></div>';
-  }).join('');
-
-  var doneQ = S.quests.filter(function(q){return q.done;}).length;
-  document.getElementById('questCounter').textContent = doneQ + '/' + S.quests.length + ' COMPLETAS';
-  document.getElementById('questList').innerHTML = S.quests.map(function(q){
-    return '<div class="quest '+(q.done?'done':'')+'" onclick="toggleQuest('+q.id+')">'
-      +'<div class="quest-check">'+(q.done?'✓':'')+'</div>'
-      +'<div class="quest-body"><div class="quest-name">'+q.name+'</div><div class="quest-desc">'+q.desc+'</div></div>'
-      +'<div class="quest-diff '+q.diff+'">'+q.diff.toUpperCase()+'-RANK</div>'
-      +'<div class="quest-xp">+'+q.xp+' XP</div></div>';
-  }).join('');
-
-  document.getElementById('dungeonGrid').innerHTML = S.dungeons.map(function(d,i){
-    var pct = Math.round(d.prog/d.total*100);
-    return '<div class="dungeon-card" onclick="enterDungeon('+i+')">'
-      +'<div class="dungeon-top"><div class="dungeon-name">'+d.name+'</div><div class="dungeon-rank '+d.rank+'">'+d.rank.toUpperCase()+'-RANK</div></div>'
-      +'<div class="dungeon-desc">'+d.desc+'</div>'
-      +'<div class="dungeon-progress"><div class="dungeon-prog-fill" style="width:'+pct+'%"></div></div>'
-      +'<div class="dungeon-meta"><span>'+d.prog+'/'+d.total+' questões</span><span>'+pct+'%</span></div></div>';
-  }).join('');
-
-  document.getElementById('skillGrid').innerHTML = S.skills.map(function(sk,i){
-    return '<div class="skill-card '+(sk.active?'active':'')+'" onclick="toggleSkill('+i+')">'
-      +'<div class="skill-icon">'+sk.icon+'</div>'
-      +'<div class="skill-name">'+sk.name+'</div>'
-      +'<div class="skill-desc">'+sk.desc+'</div>'
-      +'<div class="skill-lv">NV '+sk.lv+' / '+sk.maxLv+'</div>'
-      +'<div class="skill-lv-bar"><div class="skill-lv-fill" style="width:'+(sk.lv/sk.maxLv*100)+'%"></div></div></div>';
-  }).join('');
-
-  document.getElementById('logArea').innerHTML = S.logs.slice(-50).reverse().map(function(l){
-    return '<div class="log-entry"><span class="ts">'+l.ts+'</span><span class="msg-'+l.type+'">'+l.msg+'</span></div>';
-  }).join('');
-}
-
-// ════════════════════════════════════════════════
-// 5. ACTIONS
-// ════════════════════════════════════════════════
-function toggleQuest(id) {
-  var q = S.quests.find(function(x){return x.id===id;});
-  if(!q) return;
-  if(!q.done){
-    q.done = true;
-    gainXP(q.xp);
-    var keys = Object.keys(S.stats);
-    var rk = keys[Math.floor(Math.random()*keys.length)];
-    S.stats[rk] = Math.min(100, (S.stats[rk]||0) + Math.ceil(q.xp/20));
-    addLog('Missão concluída: "'+q.name+'" +'+q.xp+'XP', 'good');
-    showNotif('MISSÃO CONCLUÍDA', '+'+q.xp+' XP ganhos!');
-  } else {
-    q.done = false;
-    addLog('Missão reaberta: "'+q.name+'"', 'warn');
+function obNext(){
+  if(obStep===1){
+    const v=document.getElementById('ob-name').value.trim();
+    if(!v){document.getElementById('warn-name').style.display='block';return;}
+    document.getElementById('warn-name').style.display='none';
+    state.nome=v;
   }
-  save(); render();
-}
-
-function addQuest() {
-  var inp = document.getElementById('newQuestInput');
-  var name = inp.value.trim();
-  if(!name) return;
-  S.quests.push({id:S.nextId++, name:name, desc:'Missão personalizada', xp:25, diff:'c', done:false});
-  inp.value = '';
-  addLog('Nova missão: "'+name+'"', 'warn');
-  save(); render();
-}
-
-function enterDungeon(i) {
-  var d = S.dungeons[i];
-  var gain = Math.floor(Math.random()*3)+1;
-  d.prog = Math.min(d.total, d.prog+gain);
-  gainXP(gain*5);
-  if(S.stats[d.name] !== undefined) S.stats[d.name] = Math.min(100, S.stats[d.name]+gain);
-  addLog('Dungeon '+d.name+': +'+gain+' questões resolvidas', 'good');
-  save(); render();
-}
-
-function toggleSkill(i) {
-  var sk = S.skills[i];
-  if(!sk.active){
-    sk.active=true;
-    if(sk.lv < sk.maxLv) sk.lv++;
-    gainXP(30);
-    addLog('Habilidade ativa: '+sk.name+' NV'+sk.lv, 'good');
-    showNotif('HABILIDADE ATIVA', sk.name+' NV'+sk.lv+'!', true);
-  } else {
-    sk.active=false;
-    addLog('Habilidade desativada: '+sk.name, 'warn');
+  if(obStep===2){
+    const s=document.querySelector('#ob-banca .selected');
+    if(!s){document.getElementById('warn-banca').style.display='block';return;}
+    document.getElementById('warn-banca').style.display='none';
+    state.banca=s.textContent;
   }
-  save(); render();
-}
-
-// ════════════════════════════════════════════════
-// 6. TABS
-// ════════════════════════════════════════════════
-function switchTab(name, btn) {
-  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
-  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
-  document.getElementById('tab-'+name).classList.add('active');
-  btn.classList.add('active');
-}
-
-// ════════════════════════════════════════════════
-// 7. 200Q SYSTEM
-// ════════════════════════════════════════════════
-var MILESTONES = [25,50,75,100,125,150,175,200];
-var MILESTONE_NAMES = {25:'25 — Aquecendo',50:'50 — Ritmo',75:'75 — Foco',100:'100 — METADE',125:'125 — Aceleração',150:'150 — Quase lá',175:'175 — Sprint Final',200:'200 — S-RANK ★'};
-
-function getQ200() {
-  if(!S.q200 || S.q200.length !== 200) S.q200 = Array(200).fill(false);
-  return S.q200;
-}
-
-function renderQ200() {
-  var checks = getQ200();
-  var done = checks.filter(Boolean).length;
-  document.getElementById('q200count').textContent = done;
-  document.getElementById('q200badge').textContent = done + ' / 200';
-  document.getElementById('q200pct').textContent = Math.round(done/2) + '%';
-  document.getElementById('q200bar').style.width = (done/2) + '%';
-
-  document.getElementById('q200grid').innerHTML = checks.map(function(c,i){
-    var isMilestone = (i+1)%25===0 ? 'milestone' : '';
-    return '<div class="q-check '+(c?'checked':'')+' '+isMilestone+'" onclick="toggleQ('+i+')" title="Questão '+(i+1)+'"></div>';
-  }).join('');
-
-  document.getElementById('q200milestones').innerHTML = MILESTONES.map(function(m){
-    var unlocked = done >= m;
-    return '<div class="milestone-tag '+(unlocked?'unlocked':'locked')+'">'+(unlocked?'✓ ':'○ ')+MILESTONE_NAMES[m]+'</div>';
-  }).join('');
-}
-
-function toggleQ(i) {
-  var checks = getQ200();
-  var prev = checks.filter(Boolean).length;
-  checks[i] = !checks[i];
-  var now = checks.filter(Boolean).length;
-  S.q200 = checks;
-
-  MILESTONES.forEach(function(m){
-    if(prev < m && now >= m){
-      showNotif('MARCO ATINGIDO!', MILESTONE_NAMES[m]+' 🎯', true);
-      addLog('Marco: '+MILESTONE_NAMES[m], 'good');
-      gainXP(50);
-    }
-  });
-  if(now === 200){
-    showNotif('S-RANK ALCANÇADO!', '200 questões hoje! Lendário ★', true);
-    addLog('🏆 META DIÁRIA 200 QUESTÕES CONCLUÍDA!', 'good');
+  if(obStep===3){
+    const v=document.getElementById('ob-date').value;
+    if(!v){document.getElementById('warn-date').style.display='block';return;}
+    document.getElementById('warn-date').style.display='none';
+    state.provaDate=v;
   }
-  save(); renderQ200(); render();
+  if(obStep===4){
+    const s=document.querySelector('#ob-fraqueza .selected');
+    if(!s){document.getElementById('warn-fraqueza').style.display='block';return;}
+    document.getElementById('warn-fraqueza').style.display='none';
+    state.fraqueza=s.textContent;
+  }
+  document.querySelectorAll('.ob-step')[obStep].classList.remove('active');
+  obStep++;
+  document.querySelectorAll('.ob-step')[obStep].classList.add('active');
+  obRenderDots();
 }
-
-function undoQ() {
-  var checks = getQ200();
-  for(var i=checks.length-1;i>=0;i--){ if(checks[i]){checks[i]=false; break;} }
-  S.q200 = checks; save(); renderQ200();
+function obBack(){
+  document.querySelectorAll('.ob-step')[obStep].classList.remove('active');
+  obStep--;
+  document.querySelectorAll('.ob-step')[obStep].classList.add('active');
+  obRenderDots();
 }
-
-function resetQ200() {
-  if(!confirm('Resetar todas as 200 questões de hoje?')) return;
-  S.q200 = Array(200).fill(false);
-  addLog('Contador de questões resetado.', 'warn');
-  save(); renderQ200();
+function selectOpt(el,group){
+  document.querySelectorAll('#'+group+' .ob-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
 }
-
-// ════════════════════════════════════════════════
-// 8. ALERT
-// ════════════════════════════════════════════════
-function closeAlert() {
-  document.getElementById('alertPopup').style.display = 'none';
-  document.getElementById('overlay').style.display = 'none';
-  localStorage.setItem('alertClosed','1');
-  addLog('Sistema ativado. Bem-vindo, Hunter.', 'good');
-  render();
-}
-if(localStorage.getItem('alertClosed')){
-  document.getElementById('alertPopup').style.display = 'none';
-  document.getElementById('overlay').style.display = 'none';
-}
-
-// ════════════════════════════════════════════════
-// 9. COUNTDOWN
-// ════════════════════════════════════════════════
-var TARGET = new Date('2026-11-01T13:00:00');
-function tick(){
-  var diff = TARGET - new Date();
-  if(diff <= 0){ ['d','h','m','s'].forEach(function(k){document.getElementById('cd-'+k).textContent='00';}); return; }
-  var d=Math.floor(diff/864e5), h=Math.floor((diff%864e5)/36e5), m=Math.floor((diff%36e5)/6e4), s=Math.floor((diff%6e4)/1e3);
-  document.getElementById('cd-d').textContent = String(d).padStart(3,'0');
-  document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
-  document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
-  document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
-}
-setInterval(tick, 1000); tick();
-
-// ════════════════════════════════════════════════
-// 10. MOTIVATION
-// ════════════════════════════════════════════════
-var quotes=[
-  {q:'"Eu não sou um herói porque eu quero ser. Simplesmente não consigo deixar de ser."',s:'— Sung Jin-Woo'},
-  {q:'"Cada questão errada hoje é uma questão que você acerta na prova que importa."',s:'— SISTEMA'},
-  {q:'"Ninguém nasce pronto. O E-rank de hoje é o S-rank de amanhã."',s:'— SISTEMA'},
-  {q:'"Você não está estudando para uma prova. Está salvando vidas que ainda não conhece."',s:'— SISTEMA'},
-  {q:'"A diferença entre quem passa e quem não passa raramente é talento. É consistência."',s:'— SISTEMA'},
-  {q:'"O portal está aberto. Só você pode decidir se vai entrar."',s:'— SISTEMA'},
-  {q:'"Se você parar quando estiver cansado, vai parar em cada dungeon da vida."',s:'— SISTEMA'},
-];
-var mq = quotes[Math.floor(Math.random()*quotes.length)];
-document.getElementById('motivQuote').textContent = mq.q;
-document.getElementById('motivSource').textContent = mq.s;
-
-// ════════════════════════════════════════════════
-// 11. DAILY RESET
-// ════════════════════════════════════════════════
-var today = new Date().toDateString();
-if(S.lastReset !== today){
-  S.quests.forEach(function(q){q.done=false;});
-  S.q200 = Array(200).fill(false);
-  S.lastReset = today;
-  addLog('Novo dia — missões e questões reiniciadas.', 'warn');
+function toggleDay(el){el.classList.toggle('selected')}
+function obFinish(){
+  const days=[];
+  document.querySelectorAll('#ob-days .selected').forEach(d=>days.push(parseInt(d.dataset.day)));
+  if(!days.length){document.getElementById('warn-days').style.display='block';return;}
+  state.acadDays=days;
+  state.streak=0;
+  state.lastActive='';
   save();
+  startApp();
+}
+obRenderDots();
+
+// ═══════════════════ INIT ═══════════════════
+function startApp(){
+  document.getElementById('onboarding').style.display='none';
+  document.getElementById('app').style.display='block';
+  updateStreak();
+  renderSidebar();
+  renderDashboard();
+  renderTarefas();
+  renderQuestoes();
+  renderRedacao();
+  renderSimulados();
+  renderAcademia();
+  checkDayAlert();
+  // redação tipo change
+  document.getElementById('red-tipo').addEventListener('change',updateRedTipo);
+  updateRedTipo();
+  // default dates
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('red-data').value=today;
+  document.getElementById('s-data').value=today;
 }
 
-// ════════════════════════════════════════════════
-// 12. INIT
-// ════════════════════════════════════════════════
-if(S.logs.length === 0){
-  addLog('Sistema de Despertar ativado.', 'good');
-  addLog('Destino detectado: MEDICINA — USP / UFMG 2025', 'good');
-  addLog('Protocolo Academic Comeback inicializado.', 'warn');
+if(load()&&state.nome){
+  startApp();
 }
 
-// Event listeners — safe here since DOM is ready
-document.getElementById('newQuestInput').addEventListener('keypress', function(e){ if(e.key==='Enter') addQuest(); });
-document.getElementById('playerName').addEventListener('change', function(e){
-  S.name = e.target.value.toUpperCase() || 'HUNTER';
-  addLog('Nome: '+S.name, 'warn');
-  save(); render();
-});
+// ═══════════════════ STREAK ═══════════════════
+function updateStreak(){
+  const today=new Date().toISOString().split('T')[0];
+  if(state.lastActive===today) return;
+  const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  if(state.lastActive===yesterday){
+    // check if yesterday had activity
+    const hadQ=state.questoes.some(q=>q.data===yesterday&&q.total>=30);
+    if(hadQ) state.streak++;
+    else state.streak=0;
+  } else if(state.lastActive!==today){
+    // gap
+    if(state.lastActive) state.streak=0;
+  }
+}
 
-render();
-renderQ200();
+// ═══════════════════ SIDEBAR ═══════════════════
+function renderSidebar(){
+  document.getElementById('sb-username').textContent=state.nome.toUpperCase();
+  document.getElementById('sb-streak-num').innerHTML=state.streak+'<span>d</span>';
+}
+
+// ═══════════════════ NAVIGATION ═══════════════════
+function goPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const items=['dashboard','tarefas','questoes','redacao','simulados','academia'];
+  const idx=items.indexOf(id);
+  document.querySelectorAll('.sb-item')[idx].classList.add('active');
+  if(id==='dashboard') renderDashboard();
+  if(id==='tarefas') renderTarefas();
+  if(id==='questoes') renderQuestoes();
+  if(id==='redacao') renderRedacao();
+  if(id==='simulados') renderSimulados();
+  if(id==='academia') renderAcademia();
+}
+
+// ═══════════════════ MODAIS ═══════════════════
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+// ═══════════════════ TOAST ═══════════════════
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ═══════════════════ HELPERS ═══════════════════
+function today(){ return new Date().toISOString().split('T')[0] }
+function daysLeft(){
+  if(!state.provaDate) return null;
+  const diff=new Date(state.provaDate+'T12:00:00')-new Date();
+  return Math.ceil(diff/86400000);
+}
+function getHour(){ return new Date().getHours() }
+function questoesHoje(){
+  return state.questoes.filter(q=>q.data===today()).reduce((a,q)=>a+q.total,0);
+}
+function acertosHoje(){
+  const sess=state.questoes.filter(q=>q.data===today());
+  const total=sess.reduce((a,q)=>a+q.total,0);
+  const acertos=sess.reduce((a,q)=>a+q.acertos,0);
+  return total>0?Math.round((acertos/total)*100):0;
+}
+function redacoesNaSemana(){
+  const now=new Date();
+  const dow=now.getDay();
+  const startOfWeek=new Date(now);
+  startOfWeek.setDate(now.getDate()-dow);
+  startOfWeek.setHours(0,0,0,0);
+  return state.redacoes.filter(r=>new Date(r.data)>=startOfWeek).length;
+}
+function formatDate(d){
+  if(!d) return '—';
+  const [y,m,day]=d.split('-');
+  return `${day}/${m}/${y}`;
+}
+function formatDeadline(dt){
+  if(!dt) return '—';
+  const d=new Date(dt);
+  const now=new Date();
+  const diff=d-now;
+  if(diff<0){
+    const hrs=Math.ceil(Math.abs(diff)/3600000);
+    return `<span class="deadline-red">VENCIDA há ${hrs}h</span>`;
+  }
+  const days=Math.ceil(diff/86400000);
+  if(days<=1) return `<span class="deadline-red">Hoje — ${d.getHours()}h${String(d.getMinutes()).padStart(2,'0')}</span>`;
+  return `<span class="deadline-ok">${formatDate(dt.split('T')[0])} — ${d.getHours()}h${String(d.getMinutes()).padStart(2,'0')}</span>`;
+}
+
+// ═══════════════════ DASHBOARD ═══════════════════
+function checkDayAlert(){
+  const h=getHour();
+  const qh=questoesHoje();
+  const bar=document.getElementById('alert-bar');
+  if(h>=10&&qh===0){
+    bar.textContent=`São ${h}h. O dia já começou sem você.`;
+    bar.classList.add('visible');
+  } else if(qh>0&&qh<30){
+    bar.textContent=`Você fez ${qh} questões. Abaixo de 30, o dia não conta. Continue.`;
+    bar.classList.add('visible');
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+function fletcherMsg(){
+  const h=getHour();
+  const qh=questoesHoje();
+  const redSem=redacoesNaSemana();
+  if(h<6) return '"Você acordou antes dos outros. Use isso."';
+  if(h>=10&&qh===0) return '"São '+h+'h. O dia já começou sem você. Cada hora que passa é uma hora que o seu concorrente usou."';
+  if(qh>=40) return '"Meta cumprida. Isso era o mínimo. O que mais você fez hoje?"';
+  if(redSem===0&&h>=20) return '"Você não escreveu nenhuma redação esta semana. A vaga na FMUSP não tem misericórdia por isso."';
+  if(state.streak>=7) return '"'+state.streak+' dias seguidos. Não comemore. Continue."';
+  if(state.streak===0) return '"Sequência zerada. Começa do zero. Sem histórico de ontem — só o que você faz agora."';
+  return '"Disciplina não é o que você faz quando está motivado. É o que você faz quando não está."';
+}
+
+function renderDashboard(){
+  const now=new Date();
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const meses=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  document.getElementById('dash-date').textContent=
+    `${dias[now.getDay()]}, ${now.getDate()} de ${meses[now.getMonth()]}`;
+  const h=getHour();
+  const saudacao=h<12?'Bom dia,':h<18?'Boa tarde,':'Boa noite,';
+  document.getElementById('dash-greeting').textContent=`${saudacao} ${state.nome}.`;
+
+  // countdown
+  const dl=daysLeft();
+  if(dl!==null){
+    document.getElementById('days-left').textContent=dl>0?dl:'HOJE';
+    document.getElementById('prova-label').textContent=state.banca;
+  }
+
+  // stats cards
+  const qh=questoesHoje();
+  const acHoje=acertosHoje();
+  const redSem=redacoesNaSemana();
+  const acadToday=isAcadDayToday();
+  const acadConfirmed=state.acadHistory[today()]===true;
+
+  const cards=[
+    {label:'Questões hoje',val:qh,target:40,unit:'/ 40',cls:qh>=40?'ok':qh>=30?'warn':'bad'},
+    {label:'Acerto hoje',val:acHoje,unit:'%',cls:acHoje>=75?'ok':acHoje>=60?'warn':'bad'},
+    {label:'Redações semana',val:redSem,target:3,unit:'/ 3',cls:redSem>=3?'ok':redSem>=1?'warn':'bad'},
+    {label:'Academia hoje',val:acadToday?(acadConfirmed?'OK':'—'):'Livre',unit:'',cls:acadToday&&!acadConfirmed?'warn':'ok'},
+  ];
+  document.getElementById('dash-stats').innerHTML=cards.map(c=>`
+    <div class="stat-card">
+      <div class="stat-card-label">${c.label}</div>
+      <div class="stat-card-num ${c.cls}">${c.val}${c.unit}</div>
+    </div>`).join('');
+
+  // week bars
+  const metaQ=40*7; const totalQ=state.questoes.filter(q=>{
+    const d=new Date(q.data),now2=new Date(),dow=now2.getDay();
+    const s=new Date(now2);s.setDate(now2.getDate()-dow);s.setHours(0,0,0,0);
+    return d>=s;
+  }).reduce((a,q)=>a+q.total,0);
+  const pctQ=Math.min(100,Math.round((totalQ/metaQ)*100));
+  const pctRed=Math.min(100,Math.round((redSem/3)*100));
+  const pctStreak=Math.min(100,state.streak*10);
+  const weekPct=Math.round((pctQ+pctRed)/2);
+  document.getElementById('dash-week-pct').textContent=weekPct+'%';
+  document.getElementById('dash-week-bars').innerHTML=`
+    <div class="prog-wrap"><div class="prog-header"><span class="prog-label">Questões</span><span class="prog-pct">${totalQ}/${metaQ}</span></div><div class="prog-bg"><div class="prog-fill" style="width:${pctQ}%"></div></div></div>
+    <div class="prog-wrap"><div class="prog-header"><span class="prog-label">Redações</span><span class="prog-pct">${redSem}/3</span></div><div class="prog-bg"><div class="prog-fill ${redSem>=3?'green':'gold'}" style="width:${pctRed}%"></div></div></div>
+    <div class="prog-wrap"><div class="prog-header"><span class="prog-label">Sequência</span><span class="prog-pct">${state.streak} dias</span></div><div class="prog-bg"><div class="prog-fill gold" style="width:${pctStreak}%"></div></div></div>`;
+
+  // tasks preview
+  const pending=state.tarefas.filter(t=>!t.done).sort((a,b)=>new Date(a.prazo)-new Date(b.prazo)).slice(0,3);
+  document.getElementById('dash-tasks-preview').innerHTML=pending.length?pending.map(t=>`
+    <div class="list-item">
+      <div class="li-body">
+        <div class="li-title">${t.nome}</div>
+        <div class="li-meta">${t.disc} · ${t.banca} · ${formatDeadline(t.prazo)}</div>
+      </div>
+      <div class="li-right"><span class="badge badge-${t.prio==='CRÍTICA'?'red':t.prio==='ALTA'?'gold':'dim'}">${t.prio}</span></div>
+    </div>`).join(''):'<div style="color:var(--ash);font-size:13px;padding:16px 0">Nenhuma tarefa pendente.</div>';
+
+  document.getElementById('fletcher-daily').textContent=fletcherMsg().replace(/^"|"$/g,'');
+  checkDayAlert();
+}
+
+// ═══════════════════ TAREFAS ═══════════════════
+function salvarTarefa(){
+  const nome=document.getElementById('t-nome').value.trim();
+  const prazo=document.getElementById('t-prazo').value;
+  if(!nome||!prazo){showToast('Nome e prazo são obrigatórios.');return;}
+  state.tarefas.push({
+    id:Date.now(),nome,disc:document.getElementById('t-disc').value,
+    prio:document.getElementById('t-prio').value,
+    prazo,tempo:document.getElementById('t-tempo').value||60,
+    banca:document.getElementById('t-banca').value,
+    done:false,doneAt:null,criadoEm:new Date().toISOString()
+  });
+  save();closeModal('modal-tarefa');
+  document.getElementById('t-nome').value='';document.getElementById('t-prazo').value='';
+  renderTarefas();showToast('Tarefa adicionada. Agora execute.');
+}
+function toggleTarefa(id){
+  const t=state.tarefas.find(t=>t.id===id);
+  if(!t) return;
+  t.done=!t.done;
+  t.doneAt=t.done?new Date().toISOString():null;
+  save();renderTarefas();renderDashboard();
+  if(t.done) showToast(t.prio==='CRÍTICA'?'Tarefa crítica concluída. Era o esperado.':'Concluído. Próxima.');
+}
+function renderTarefas(){
+  const pending=state.tarefas.filter(t=>!t.done).sort((a,b)=>{
+    const po={CRÍTICA:0,ALTA:1,NORMAL:2};
+    if(po[a.prio]!==po[b.prio]) return po[a.prio]-po[b.prio];
+    return new Date(a.prazo)-new Date(b.prazo);
+  });
+  const done=state.tarefas.filter(t=>t.done).sort((a,b)=>new Date(b.doneAt)-new Date(a.doneAt));
+  document.getElementById('tarefas-count').textContent=pending.length;
+  document.getElementById('tarefas-done-count').textContent=done.length;
+
+  document.getElementById('tarefas-list').innerHTML=pending.length?pending.map(t=>{
+    const vencida=new Date(t.prazo)<new Date()&&!t.done;
+    return `<div class="list-item">
+      <div class="li-check${t.done?' done':''}" onclick="toggleTarefa(${t.id})"></div>
+      <div class="li-body">
+        <div class="li-title${vencida?' '+'':''}">${t.nome} ${vencida?'<span class="badge badge-red">VENCIDA</span>':''}</div>
+        <div class="li-meta">${t.disc} · ${t.banca} · ~${t.tempo}min · ${formatDeadline(t.prazo)}</div>
+      </div>
+      <div class="li-right"><span class="badge badge-${t.prio==='CRÍTICA'?'red':t.prio==='ALTA'?'gold':'dim'}">${t.prio}</span></div>
+    </div>`;
+  }).join(''):'<div style="color:var(--ash);font-size:13px;padding:16px 0">Nenhuma tarefa pendente. Se você não tem tarefas, está atrasado.</div>';
+
+  document.getElementById('tarefas-done-list').innerHTML=done.slice(0,10).map(t=>`
+    <div class="list-item" style="opacity:.5">
+      <div class="li-check done" onclick="toggleTarefa(${t.id})" style="cursor:pointer"></div>
+      <div class="li-body">
+        <div class="li-title done-text">${t.nome}</div>
+        <div class="li-meta">${t.disc} · Concluída em ${formatDate(t.doneAt?.split('T')[0])}</div>
+      </div>
+    </div>`).join('')||'<div style="color:var(--ash);font-size:13px;padding:16px 0">Nenhuma tarefa concluída ainda.</div>';
+}
+
+// ═══════════════════ QUESTÕES ═══════════════════
+function registrarQuestoes(){
+  const total=parseInt(document.getElementById('q-total').value);
+  const acertos=parseInt(document.getElementById('q-acertos').value);
+  if(!total||isNaN(total)){showToast('Informe o número de questões.');return;}
+  if(isNaN(acertos)||acertos>total){showToast('Acertos inválidos.');return;}
+  const disc=document.getElementById('q-disc').value;
+  const fonte=document.getElementById('q-fonte').value;
+  const pct=Math.round((acertos/total)*100);
+  state.questoes.push({id:Date.now(),data:today(),disc,total,acertos,pct,fonte,hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
+  state.lastActive=today();
+  save();renderQuestoes();renderDashboard();
+  document.getElementById('q-total').value='';document.getElementById('q-acertos').value='';
+  const msg=pct>=75?'Sessão registrada. Acerto dentro do esperado.':pct>=60?'Registrado. Acerto abaixo de 75% — ponto de atenção.':'Registrado. '+pct+'% de acerto é insuficiente. Revise o conteúdo.';
+  showToast(msg);
+}
+function renderQuestoes(){
+  const qh=questoesHoje();
+  const acHoje=acertosHoje();
+  const totalGeral=state.questoes.reduce((a,q)=>a+q.total,0);
+  const acGeral=state.questoes.length?Math.round(state.questoes.reduce((a,q)=>a+q.pct,0)/state.questoes.length):0;
+
+  const alert=document.getElementById('q-alert');
+  if(qh<30&&qh>0){alert.textContent=`${qh} questões feitas. Abaixo de 30, o dia não conta. Você escolheu não estudar hoje. O candidato que vai ocupar sua vaga agradece.`;alert.classList.add('visible');}
+  else if(qh===0&&getHour()>=10){alert.textContent=`Zero questões até agora. São ${getHour()}h. O dia está indo embora.`;alert.classList.add('visible');}
+  else alert.classList.remove('visible');
+
+  document.getElementById('q-stats').innerHTML=[
+    {label:'Questões hoje',val:qh,cls:qh>=40?'ok':qh>=30?'warn':'bad',unit:'/40'},
+    {label:'Acerto hoje',val:acHoje+'%',cls:acHoje>=75?'ok':acHoje>=60?'warn':'bad',unit:''},
+    {label:'Total geral',val:totalGeral,cls:'ok',unit:''},
+    {label:'Acerto médio',val:acGeral+'%',cls:acGeral>=75?'ok':acGeral>=60?'warn':'bad',unit:''},
+  ].map(c=>`<div class="stat-card"><div class="stat-card-label">${c.label}</div><div class="stat-card-num ${c.cls}">${c.val}${c.unit}</div></div>`).join('');
+
+  // proficiência
+  const discs=['Biologia','Química','Física','Matemática','Português','Humanas'];
+  document.getElementById('q-proficiencia').innerHTML=discs.map(d=>{
+    const sess=state.questoes.filter(q=>q.disc===d);
+    const pct=sess.length?Math.round(sess.reduce((a,q)=>a+q.pct,0)/sess.length):0;
+    const cls=pct>=75?'green':pct>=60?'gold':'';
+    return `<div class="prog-wrap"><div class="prog-header"><span class="prog-label">${d}</span><span class="prog-pct">${sess.length?pct+'%':'—'}</span></div><div class="prog-bg"><div class="prog-fill ${cls}" style="width:${pct}%"></div></div></div>`;
+  }).join('');
+
+  // histórico
+  const hist=[...state.questoes].reverse().slice(0,15);
+  document.getElementById('q-historico').innerHTML=hist.length?hist.map(q=>`
+    <div class="list-item">
+      <div class="li-body"><div class="li-title">${q.disc} — ${q.total} questões</div>
+      <div class="li-meta">${q.fonte} · ${formatDate(q.data)} às ${q.hora}</div></div>
+      <div class="li-right"><span class="badge badge-${q.pct>=75?'green':q.pct>=60?'gold':'red'}">${q.pct}%</span></div>
+    </div>`).join(''):'<div style="color:var(--ash);font-size:13px;padding:16px 0">Nenhuma sessão registrada.</div>';
+}
+
+// ═══════════════════ REDAÇÃO ═══════════════════
+function updateRedTipo(){
+  const tipo=document.getElementById('red-tipo').value;
+  const isEnem=tipo.includes('ENEM');
+  document.getElementById('red-comps-wrap').style.display=isEnem?'grid':'none';
+  document.getElementById('red-nota-wrap').style.display=isEnem?'none':'block';
+}
+function registrarRedacao(){
+  const tipo=document.getElementById('red-tipo').value;
+  const data=document.getElementById('red-data').value;
+  const tema=document.getElementById('red-tema').value.trim();
+  const obs=document.getElementById('red-obs').value.trim();
+  if(!data||!tema){showToast('Data e tema são obrigatórios.');return;}
+  const isEnem=tipo.includes('ENEM');
+  let nota,comps=null;
+  if(isEnem){
+    const c1=parseInt(document.getElementById('rc1').value)||0;
+    const c2=parseInt(document.getElementById('rc2').value)||0;
+    const c3=parseInt(document.getElementById('rc3').value)||0;
+    const c4=parseInt(document.getElementById('rc4').value)||0;
+    const c5=parseInt(document.getElementById('rc5').value)||0;
+    comps=[c1,c2,c3,c4,c5];nota=c1+c2+c3+c4+c5;
+  } else {
+    nota=parseFloat(document.getElementById('red-nota-simple').value)||0;
+  }
+  state.redacoes.push({id:Date.now(),tipo,data,tema,nota,comps,obs});
+  save();renderRedacao();
+  document.getElementById('red-tema').value='';document.getElementById('red-obs').value='';
+  ['rc1','rc2','rc3','rc4','rc5'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('red-nota-simple').value='';
+  const msg=isEnem&&nota<700?`${nota} pontos. Abaixo de 700 não aprova nada. Escreva de novo.`:isEnem&&nota>=900?`${nota} pontos. Dentro da zona de aprovação. Continue.`:`Redação registrada.`;
+  showToast(msg);
+}
+function renderRedacao(){
+  const redSem=redacoesNaSemana();
+  const todas=state.redacoes;
+  const ult5=todas.slice(-5);
+  const mediaEnem=ult5.filter(r=>r.tipo.includes('ENEM')&&r.nota);
+  const media=mediaEnem.length?Math.round(mediaEnem.reduce((a,r)=>a+r.nota,0)/mediaEnem.length):0;
+
+  document.getElementById('red-stats').innerHTML=[
+    {label:'Redações esta semana',val:redSem,unit:'/3',cls:redSem>=3?'ok':redSem>=1?'warn':'bad'},
+    {label:'Média últimas 5 (ENEM)',val:media||'—',unit:'',cls:media>=900?'ok':media>=700?'warn':'bad'},
+    {label:'Total registradas',val:todas.length,unit:'',cls:'ok'},
+  ].map(c=>`<div class="stat-card"><div class="stat-card-label">${c.label}</div><div class="stat-card-num ${c.cls}">${c.val}${c.unit}</div></div>`).join('');
+
+  document.getElementById('red-historico').innerHTML=[...todas].reverse().slice(0,10).map(r=>{
+    const nota=r.tipo.includes('ENEM')?r.nota:r.nota*100;
+    const cls=nota>=900?'high':nota>=700?'mid':'low';
+    let bars='';
+    if(r.comps){
+      bars=`<div class="comp-bars">${r.comps.map((v,i)=>`
+        <div class="comp-bar-wrap">
+          <div class="comp-bar-val">${v}</div>
+          <div class="comp-bar-bg"><div class="comp-bar-fill" style="height:${Math.round(v/200*100)}%"></div></div>
+          <div class="comp-bar-label">C${i+1}</div>
+        </div>`).join('')}</div>`;
+    }
+    return `<div class="redacao-item">
+      <div class="redacao-header">
+        <div>
+          <div class="redacao-tema">${r.tema}</div>
+          <div style="font-size:12px;color:var(--ash);margin-top:4px">${r.tipo} · ${formatDate(r.data)}</div>
+          ${r.obs?`<div style="font-size:12px;color:var(--ash);font-style:italic;margin-top:4px">${r.obs}</div>`:''}
+        </div>
+        <div class="redacao-nota ${cls}">${r.tipo.includes('ENEM')?r.nota:(r.nota).toFixed(1)}</div>
+      </div>
+      ${bars}
+    </div>`;
+  }).join('')||'<div style="color:var(--ash);font-size:13px;padding:16px 0">Nenhuma redação registrada.</div>';
+}
+
+// ═══════════════════ SIMULADOS ═══════════════════
+function salvarSimulado(){
+  const data=document.getElementById('s-data').value;
+  const total=parseInt(document.getElementById('s-total').value);
+  const acertos=parseInt(document.getElementById('s-acertos').value);
+  if(!data||!total||isNaN(acertos)){showToast('Preencha todos os campos obrigatórios.');return;}
+  const pct=Math.round((acertos/total)*100);
+  state.simulados.push({id:Date.now(),data,tipo:document.getElementById('s-tipo').value,
+    banca:document.getElementById('s-banca').value,total,acertos,pct,
+    tempo:document.getElementById('s-tempo').value,obs:document.getElementById('s-obs').value});
+  save();closeModal('modal-simulado');renderSimulados();
+  showToast(`Simulado registrado. ${pct}% de acerto.`);
+}
+function renderSimulados(){
+  const sims=state.simulados;
+  const ultimo=sims.length?sims[sims.length-1]:null;
+  const penultimo=sims.length>1?sims[sims.length-2]:null;
+  const media=sims.length?Math.round(sims.reduce((a,s)=>a+s.pct,0)/sims.length):0;
+
+  document.getElementById('sim-stats').innerHTML=[
+    {label:'Simulados realizados',val:sims.length,cls:'ok',unit:''},
+    {label:'Último acerto',val:ultimo?ultimo.pct+'%':'—',cls:ultimo?(ultimo.pct>=70?'ok':ultimo.pct>=55?'warn':'bad'):'ok',unit:''},
+    {label:'Média geral',val:media?media+'%':'—',cls:media>=70?'ok':media>=55?'warn':'bad',unit:''},
+  ].map(c=>`<div class="stat-card"><div class="stat-card-label">${c.label}</div><div class="stat-card-num ${c.cls}">${c.val}${c.unit}</div></div>`).join('');
+
+  document.getElementById('sim-historico').innerHTML=[...sims].reverse().map((s,i,arr)=>{
+    const prev=arr[i+1];
+    const delta=prev?s.pct-prev.pct:null;
+    const deltaHtml=delta===null?'—':delta>0?`<span class="sim-delta-pos">+${delta}%</span>`:`<span class="sim-delta-neg">${delta}%</span>`;
+    return `<div class="sim-row">
+      <div style="font-size:13px;color:var(--ash)">${formatDate(s.data)}</div>
+      <div><div style="font-size:13px;color:var(--cream)">${s.banca}</div><div style="font-size:11px;color:var(--ash)">${s.tipo}</div></div>
+      <div style="font-size:13px;color:var(--ash)">${s.acertos}/${s.total}</div>
+      <div class="sim-score">${s.pct}%</div>
+      <div>${deltaHtml}</div>
+    </div>`;
+  }).join('')||'<div style="color:var(--ash);font-size:13px;padding:16px 0">Nenhum simulado registrado.</div>';
+}
+
+// ═══════════════════ ACADEMIA ═══════════════════
+function isAcadDayToday(){
+  const dow=(new Date().getDay()+6)%7; // Mon=0
+  return state.acadDays.includes(dow);
+}
+function confirmarAcademia(){
+  state.acadHistory[today()]=true;
+  state.lastActive=today();
+  save();renderAcademia();renderDashboard();
+  showToast('Academia confirmada. Corpo treinado, mente afiada. Agora volte para os livros.');
+}
+function renderAcademia(){
+  const now=new Date();
+  const dow=now.getDay(); // 0=Sun
+  const weekDays=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const weekData=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(now);d.setDate(now.getDate()-dow+i);
+    const ds=d.toISOString().split('T')[0];
+    const dayOfWeek=(d.getDay()+6)%7; // Mon=0
+    const scheduled=state.acadDays.includes(dayOfWeek);
+    const isPast=d<new Date(new Date().setHours(0,0,0,0));
+    const isToday=ds===today();
+    const confirmed=state.acadHistory[ds]===true;
+    weekData.push({ds,name:weekDays[d.getDay()],scheduled,isPast,isToday,confirmed});
+  }
+
+  const totalScheduledThisWeek=weekData.filter(d=>d.scheduled).length;
+  const confirmedThisWeek=weekData.filter(d=>d.scheduled&&d.confirmed).length;
+  const missed=weekData.filter(d=>d.scheduled&&d.isPast&&!d.confirmed).length;
+  const aderenciaMes=calcAderenciaMes();
+
+  document.getElementById('acad-stats').innerHTML=[
+    {label:'Confirmadas esta semana',val:`${confirmedThisWeek}/${totalScheduledThisWeek}`,cls:confirmedThisWeek>=totalScheduledThisWeek?'ok':confirmedThisWeek>0?'warn':'bad'},
+    {label:'Faltas esta semana',val:missed,cls:missed===0?'ok':missed===1?'warn':'bad'},
+    {label:'Aderência mensal',val:aderenciaMes+'%',cls:aderenciaMes>=80?'ok':aderenciaMes>=60?'warn':'bad'},
+  ].map(c=>`<div class="stat-card"><div class="stat-card-label">${c.label}</div><div class="stat-card-num ${c.cls}">${c.val}</div></div>`).join('');
+
+  document.getElementById('acad-week').innerHTML=weekData.map(d=>{
+    let cls='day-cell';let status='';
+    if(!d.scheduled){cls+=' not-scheduled';status='—';}
+    else if(d.confirmed){cls+=' confirmed';status='OK';}
+    else if(d.isPast&&!d.confirmed){cls+=' missed';status='X';}
+    else{cls+=' scheduled';status=d.isToday?'?':'·';}
+    const click=d.isToday&&d.scheduled&&!d.confirmed?`onclick="confirmarAcademia()"`:d.scheduled&&!d.isPast?`onclick="confirmarAcademia()"`:'' ;
+    return `<div class="${cls}" ${click}><div class="day-cell-name">${d.name}</div><div class="day-cell-status">${status}</div></div>`;
+  }).join('');
+
+  const acadMsg=document.getElementById('acad-msg');
+  if(missed>=2){acadMsg.textContent='Disciplina física e disciplina intelectual são a mesma coisa. Você está falhando nas duas.';}
+  else if(isAcadDayToday()&&!state.acadHistory[today()]){acadMsg.textContent='Hoje é dia de academia. Confirme quando voltar.';}
+  else if(state.acadHistory[today()]){acadMsg.textContent='Academia confirmada. Corpo treinado, mente afiada. Agora volte para os livros.';}
+  else{acadMsg.textContent='Dia livre de academia. Use o tempo nos livros.';}
+
+  // monthly
+  const diasProg=[];
+  for(let i=29;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split('T')[0];
+    const dayOfWeek=(d.getDay()+6)%7;
+    const scheduled=state.acadDays.includes(dayOfWeek);
+    const confirmed=state.acadHistory[ds]===true;
+    diasProg.push({scheduled,confirmed,ds});
+  }
+  const progHtml=diasProg.map(d=>{
+    if(!d.scheduled) return `<span style="display:inline-block;width:18px;height:18px;background:var(--ink3);margin:2px"></span>`;
+    if(d.confirmed) return `<span style="display:inline-block;width:18px;height:18px;background:var(--ash);margin:2px"></span>`;
+    const past=new Date(d.ds)<new Date(new Date().setHours(0,0,0,0));
+    if(past) return `<span style="display:inline-block;width:18px;height:18px;background:var(--red-muted);margin:2px"></span>`;
+    return `<span style="display:inline-block;width:18px;height:18px;background:var(--smoke);margin:2px"></span>`;
+  }).join('');
+  document.getElementById('acad-monthly').innerHTML=`
+    <div style="font-size:12px;color:var(--ash);margin-bottom:12px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">Últimos 30 dias — cinza: confirmada · vermelho: falta · escuro: não programada</div>
+    <div style="line-height:1">${progHtml}</div>`;
+}
+
+function calcAderenciaMes(){
+  let prog=0,conf=0;
+  for(let i=29;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split('T')[0];
+    const dayOfWeek=(d.getDay()+6)%7;
+    const isPast=d<new Date(new Date().setHours(0,0,0,0));
+    if(state.acadDays.includes(dayOfWeek)&&isPast){
+      prog++;if(state.acadHistory[ds]) conf++;
+    }
+  }
+  return prog?Math.round((conf/prog)*100):100;
+}
 </script>
 </body>
 </html>
